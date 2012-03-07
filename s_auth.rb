@@ -17,9 +17,9 @@ helpers do
   end
 end
 
-get '/sauth/register' do
+get '/s_auth/register' do
 	error=params[:error]
-	erb :"sauth/register", :locals => {:error => error}
+	erb :"s_auth/register", :locals => {:error => error}
 end
 
 
