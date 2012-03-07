@@ -44,6 +44,9 @@ describe User do
 
   end
 
+ it "should include the password module" do
+    User.included_modules.should include(Password)
+  end
 
 
 end
