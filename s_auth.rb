@@ -29,16 +29,18 @@ post '/s_auth/register' do
   user.save
 	if user.valid?
 		redirect 's_auth/registered'
+		puts "valid user"
 	else
 		# A FAIRE
-		errlog = u.errors.messages[:login]
-	  errpass = u.errors.messages[:password]
-		if errlog.include?("has already been taken")
-			redirect "/s_auth/register?error=Login_already_taken. Please entry an another one."
-		elsif errlog.include?("can't be blank")
-			redirect "/s_auth/register?error=The login is empty.Please_entry_a_login."
-		else
-			redirect "/s_auth/register?error=Test dans tous les cas"
+		puts "invalid user"
+		errorLogin = user.errors.messages[:login]
+	  errorPassword = user.errors.messages[:password]
+		if errorLogin.nil?
+			redirect "/s_auth/register?error=The_password_is_empty.Please_entry_a_password."
+		elsif errorLogin.include?("has already been taken")
+			redirect "/s_auth/register?error=Login_already_taken._Please_entry_an_another_one."
+		elsif errorLogin.include?("can't be blank")
+			redirect "/s_auth/register?error=The_login_is_empty.Please_entry_a_login."
 		end
 	end
 end

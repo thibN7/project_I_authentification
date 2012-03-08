@@ -40,25 +40,32 @@ describe "Authentication" do
 
 	context "The login and/or the password is/are not ok" do
 
-		it "should redirect to /s_auth/register if the password is empty" do
-			params={"login" => 'tmorisse', "password" => nil}
+		it "should redirect to /s_auth/register if the login already exists" do
+			user=User.new
+			user.login = "loginThib"
+			user.password = "passwordThib"
+      user.save
+			params={"login" => 'loginThib', "password" => 'toto'}
 			post '/s_auth/register', params
-			#last_response.should be_redirect
-			follow_redirect!
-      last_request.should '/s_auth/register'
-			#last_response.headers["Location"].should == 'http://example.org/s_auth/appli_cliente_1/new?info=Password_Empty'
+			last_response.status.should == 302
+			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=Login_already_taken._Please_entry_an_another_one."
+			user.destroy
+		end
+
+		it "should redirect to /s_auth/register if the password is empty" do
+			params={"login" => 'tmorisse', "password" => ''}
+			post '/s_auth/register', params
+			last_response.status.should == 302
+			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=The_password_is_empty.Please_entry_a_password."
 		end
 
 		it "should redirect to /s_auth/register if the login is empty" do
-			params={"login" => nil, "password" => 'motDePasse'}
+			params={"login" => '', "password" => 'motDePasse'}
 			post '/s_auth/register', params
-			#last_response.should be_redirect
-			follow_redirect!
-	     last_request.should '/s_auth/register'
-			#last_response.headers["Location"].should == 'http://example.org/s_auth/appli_cliente_1/new?info=Login_Empty'
+	    last_response.status.should == 302
+			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=The_login_is_empty.Please_entry_a_login."
 		end
 
 	end
-
 
 end
