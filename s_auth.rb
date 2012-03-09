@@ -23,33 +23,17 @@ get '/s_auth/register' do
 end
 
 post '/s_auth/register' do
-	user=User.new
-	user.login = params[:login]
-  user.password = params[:password]
-  user.save
-	if user.valid?
-		redirect 's_auth/registered'
-		puts "valid user"
-	else
-		# A FAIRE
-		puts "invalid user"
-		errorLogin = user.errors.messages[:login]
-	  errorPassword = user.errors.messages[:password]
-		if errorLogin.nil?
-			redirect "/s_auth/register?error=The_password_is_empty.Please_entry_a_password."
-		elsif errorLogin.include?("has already been taken")
-			redirect "/s_auth/register?error=Login_already_taken._Please_entry_an_another_one."
-		elsif errorLogin.include?("can't be blank")
-			redirect "/s_auth/register?error=The_login_is_empty.Please_entry_a_login."
-		end
-	end
+  u = User.create(params['user'])
+  if u
+    redirect "/s_auth/register/#{params['user']['login']}"
+  else
+    erb :"s_auth/register"
+  end
 end
 
-get '/s_auth/registered' do
-	erb :'s_auth/registered'
+get "/s_auth/register/:login" do
+  "bonjoun #{login}"
 end
-
-
 
 
 

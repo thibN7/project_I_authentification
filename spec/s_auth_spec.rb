@@ -3,7 +3,7 @@ require_relative 'spec_helper'
 require '../s_auth'
 require 'rack/test'
 
-describe "Authentication" do
+describe "Authentication service" do
 
   include Rack::Test::Methods
 
@@ -12,60 +12,44 @@ describe "Authentication" do
   end
 
 
-	context "A user is not registered" do
+	describe "User Registration" do
 
-		context "Scenario 1 : A user wants to register" do
+		it "should return a form to post registration info" do
+    	get '/s_auth/register'
+      last_response.should be_ok
+      last_response.body.should match %r{<form.*action="/s_auth/register".*method="post".*}
+		end
 
-			it "should be ok if a user goes to /s_auth/register" do
-			  get '/s_auth/register'
-			  last_response.should be_ok
+		describe "The user wants to register" do
+
+			let(:params){ { "user" => {"login" => "tmorisse", "password" => "passwordThib" }} }
+
+			it "should create a new user" do
+				User.stub(:create)
+				User.should_receive(:create).with(params['user'])
+				post 's_auth/register', params
 			end
 
-			it "should return status 200 if a user goes to /s_auth/register" do
-				get '/s_auth/register'
-		    last_response.status.should == 200
-			end
-
-			it "should register a user if the login and the password are ok" do
-			  params={'login' => 'tmorisse', 'password' => 'motDePasse'}
+			it "should redirect the user just created to a private page" do
+				User.stub(:create){true}
 				post '/s_auth/register', params
 				last_response.should be_redirect
+				follow_redirect!
+				last_request.path.should == '/s_auth/register/tmorisse'
 			end
 
-			User.all.each{|user| user.destroy}
+			it "should rerender the registration form" do
+				User.stub(:create).and_return(false)
+        post '/s_auth/register', params
+				last_response.should be_ok
+				last_response.body.should match %r{<form.*action="/s_auth/register".*method="post".*}
+			end
 
 		end
+
 
 	end
 
-	context "The login and/or the password is/are not ok" do
 
-		it "should redirect to /s_auth/register if the login already exists" do
-			user=User.new
-			user.login = "loginThib"
-			user.password = "passwordThib"
-      user.save
-			params={"login" => 'loginThib', "password" => 'toto'}
-			post '/s_auth/register', params
-			last_response.status.should == 302
-			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=Login_already_taken._Please_entry_an_another_one."
-			user.destroy
-		end
-
-		it "should redirect to /s_auth/register if the password is empty" do
-			params={"login" => 'tmorisse', "password" => ''}
-			post '/s_auth/register', params
-			last_response.status.should == 302
-			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=The_password_is_empty.Please_entry_a_password."
-		end
-
-		it "should redirect to /s_auth/register if the login is empty" do
-			params={"login" => '', "password" => 'motDePasse'}
-			post '/s_auth/register', params
-	    last_response.status.should == 302
-			last_response.headers["Location"].should == "http://example.org/s_auth/register?error=The_login_is_empty.Please_entry_a_login."
-		end
-
-	end
-
+	
 end
