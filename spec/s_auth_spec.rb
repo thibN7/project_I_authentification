@@ -47,6 +47,30 @@ describe "Authentication service" do
 
 		end
 
+	end
+
+
+
+
+
+
+
+	describe "User Authentication" do
+
+		before(:each) do
+			@params = {'login' => 'tmorisse','password' => 'passwordThib'}
+		end
+
+		it "should return a form to post authentication info" do
+    	get '/s_auth/authentication'
+      last_response.should be_ok
+      last_response.body.should match %r{<form.*action="/s_auth/authentication".*method="post".*}
+		end
+
+
+
+
+
 
 	end
 

@@ -35,5 +35,10 @@ get "/s_auth/register/:login" do
   "bonjoun #{login}"
 end
 
+get '/s_auth/authentication' do
+	error=params[:error]
+	erb :"s_auth/authentication", :locals => {:error => error}
+end
+
 
 
