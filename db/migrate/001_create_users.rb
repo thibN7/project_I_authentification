@@ -3,7 +3,7 @@ class CreateUsers < ActiveRecord::Migration
     create_table :users do |t|
       t.string :login
       t.string :password
-    end
+		end
   end
 
   def down

@@ -8,29 +8,44 @@ describe User do
     User.new
   end
 
-  describe "Missing information" do
+	before(:each) do
+		User.all.each{|user| user.destroy}
+	end
+
+	after(:each) do
+		User.all.each{|user| user.destroy}
+	end
+
+  describe "Valid?" do
 
     it "should not be valid without a password" do
       subject.login = "Thibault"
-      subject.save
+      #subject.save
       subject.valid?.should be_false
     end
+
+		it "should not be valid with an empty password" do
+			subject.login = "Thibault"
+			subject.password = ""
+      subject.valid?.should be_false
+		end
     
     it "should not be valid without a login" do
       subject.password = "MotDePasse"
-      subject.save
+      #subject.save
       subject.valid?.should be_false        
     end
 
+		it "should not be valid with an empty login" do
+			subject.login = ""
+			subject.password = "MotDePasse"
+      subject.valid?.should be_false
+		end
+
     it "should not be valid without a login and a password" do
-      subject.save
+      #subject.save
       subject.valid?.should be_false  
     end
-    
-  end 
-
-
-  describe "Wrong information" do
 
     it "should not be valid with two identical logins" do
       subject.login = "Thib"
@@ -39,14 +54,32 @@ describe User do
       user1 = User.new
       user1.login = "Thib"
       user1.password = "pass1"
-      user1.valid?.should be_false  
+      user1.valid?.should be_false
     end
+    
+  end 
+
+
+  describe "Find by login" do
+
+		it "should return false if the authentication fails" do
+			User.find_by_login('toto').should == nil
+		end
+	
+		it "should return true if the authentication succeeds" do
+			subject.login = "Thib"
+      subject.password = "pass1"
+      subject.save
+			User.find_by_login('Thib').should == nil
+		end
 
   end
 
- it "should include the password module" do
-    User.included_modules.should include(Password)
-  end
+
+
+	
+
+	
 
 
 end

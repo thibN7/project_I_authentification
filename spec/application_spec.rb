@@ -1,4 +1,3 @@
-
 require_relative 'spec_helper'
 
 require 'application'
@@ -9,41 +8,58 @@ describe Application do
     Application.new
   end
 
-  describe "Missing information" do
+	before(:each) do
+		Application.all.each{|appli| appli.destroy}
+	end
+
+	after(:each) do
+		Application.all.each{|appli| appli.destroy}
+	end
+
+  describe "Valid?" do
 
     it "should not be valid without an url" do
-	 subject.name = "NomAppli"
-      subject.save
+	 		subject.name = "NomAppli"
+      #subject.save
       subject.valid?.should be_false
     end
+
+		it "should not be valid with an empty name" do
+			subject.name = ""
+			subject.url = "http://www.url.fr/"
+			subject.valid?.should be_false
+		end
 
     it "should not be valid without a name" do
-	 subject.url = "http://www.url.fr/"
-      subject.save
+	 		subject.url = "http://www.url.fr/"
+      #subject.save
       subject.valid?.should be_false
     end
+
+		it "should not be valid with an empty url" do
+			subject.name = "NomAppli"
+			subject.url = ""
+			subject.valid?.should be_false
+		end
 
     it "should not be valid without a name and an url" do
-	 subject.save
+	 		#subject.save
       subject.valid?.should be_false
     end
 
-  end
-
-  describe "Wrong information" do
-
     it "should not be valid with two identical urls" do
-	 subject.name = "Appli1"
+	 		subject.name = "Appli1"
       subject.url = "http://www.url1.fr/"
       subject.save
       appli = Application.new
       appli.name = "Appli2"
       appli.url = "http://www.url1.fr/"
       appli.valid?.should be_false
+			subject.destroy
     end
 
     it "should not be valid with two identical names" do
-	 subject.name = "AppliTest"
+	 		subject.name = "AppliTest"
       subject.url = "http://www.urlTest1.fr/"
       subject.save
       appli = Application.new
@@ -53,7 +69,7 @@ describe Application do
     end
 
     it "should not be valid with two identical names and urls" do
-	 subject.name = "Appli"
+	 		subject.name = "Appli"
       subject.url = "http://www.url.fr/"
       subject.save
       appli = Application.new
@@ -63,6 +79,10 @@ describe Application do
     end
 
   end
+
+	
+
+
 
 
 end
