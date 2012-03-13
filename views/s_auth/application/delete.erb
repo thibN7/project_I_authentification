@@ -1,0 +1,26 @@
+<%
+   
+    appli = Application.find_by_id(params["appli"])
+    user = User.find_by_login(@login)
+
+    if !appli.nil?
+      if appli.user_id != user.id
+        @error = "You can't delete this application."
+        redirect "/"
+
+      else
+        utilisation = Utilisation.where(:application_id => appli.id)
+        utilisation.each do |u|
+          u.destroy
+        end
+
+        appli.destroy
+        redirect "/"
+      end
+
+    else
+      @error = "This appli doesn't exist"
+      redirect "/"
+   end
+  
+%>

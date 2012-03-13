@@ -20,32 +20,40 @@ describe Application do
 
     it "should not be valid without an url" do
 	 		subject.name = "NomAppli"
-      #subject.save
+      subject.user_id = "12"
       subject.valid?.should be_false
     end
 
 		it "should not be valid with an empty name" do
 			subject.name = ""
 			subject.url = "http://www.url.fr/"
+      subject.user_id = "12"
 			subject.valid?.should be_false
 		end
 
     it "should not be valid without a name" do
 	 		subject.url = "http://www.url.fr/"
-      #subject.save
+      subject.user_id = "12"
       subject.valid?.should be_false
     end
 
 		it "should not be valid with an empty url" do
 			subject.name = "NomAppli"
 			subject.url = ""
+      subject.user_id = "12"
 			subject.valid?.should be_false
 		end
 
     it "should not be valid without a name and an url" do
-	 		#subject.save
+      subject.user_id = "12"
       subject.valid?.should be_false
     end
+
+		it "should not be valid without the user id" do
+			subject.name = "NomAppli"
+			subject.url = ""
+      subject.valid?.should be_false
+		end
 
     it "should not be valid with two identical urls" do
 	 		subject.name = "Appli1"
@@ -77,6 +85,8 @@ describe Application do
       appli.url = "http://www.url.fr/"
       appli.valid?.should be_false
     end
+
+	
 
   end
 

@@ -21,14 +21,53 @@ describe "Application" do
 		Application.all.each{|appli| appli.destroy}
 	end
 
-	describe "Get root" do
-		it "should redirect to not connected page" do
+	describe "Get pages" do
+
+		it "/" do
+			get '/'
+			last_response.should be_ok
+		end
+
+		it "/s_auth/registration" do
+			get '/s_auth/registration'
+			last_response.should be_ok
+		end
+
+		it "/s_auth/authentication" do
+			get '/s_auth/authentication'
+			last_response.should be_ok
+		end
+
+		it "/s_auth/registration_application" do
+			get '/s_auth/registration_application'
+			last_response.should be_ok
+		end
+
+		it "/sessions/deco" do
+			get '/sessions/deco'
+			last_response.should be_redirect
+   		follow_redirect!
+    	last_request.path.should == '/'
+		end
+
+		describe "/s_auth/application/delete" do
+
+			it "should rerender the form if a session exists" do
+				get '/s_auth/application/delete'
+				#TODO : comment faire lorsqu'un erb suivi d'un redirect ?
+			end
+
+			it "should redirect the user to the authentication page if session doesn't exist" do
+				get '/s_auth/application/delete'
+				last_response.should be_redirect
+		 		follow_redirect!
+		  	last_request.path.should == '/s_auth/authentication'
+			end
+
 			
 		end
 
-		it "should redirect to connected page" do
 
-		end
 
 	end
 
@@ -66,9 +105,10 @@ describe "Application" do
 					post '/s_auth/registration', @params
 				end
 
-				it "should return to the principal page" do
+				it "should return to the root page" do
+					@user.stub(:login).and_return("tmorisse")
 					@user.should_receive(:valid?).and_return(true)
-					post '/s_auth/registration', @params
+					post '/s_auth/registration'
 					last_response.should be_redirect
        		follow_redirect!
         	last_request.path.should == '/'
@@ -82,9 +122,9 @@ describe "Application" do
 					@user = double(User)
 					User.stub(:create){@user}
 					@user.stub(:valid?).and_return(false)
-					@errors = double("Errors")
-					@user.stub(:errors).and_return(@errors)
-					@errors.stub(:messages).and_return("Error message")
+					#@errors = double("Errors")
+					#@user.stub(:errors).and_return(@errors)
+					#@errors.stub(:messages).and_return("Error message")
 				end
 
 				it "should rerender the registration form" do 
@@ -121,17 +161,18 @@ describe "Application" do
 		end
 
 		describe "post /s_auth/authentication" do
-			
+
 			describe "Authentication ok" do
 				
 				before(:each) do
 					@user = double(User)
-					User.stub(:find_by_login).and_return(@user)
+					User.stub(:user_exists).and_return(@user)
 					@user.stub(:nil?).and_return(false)
 					@user.stub(:login){"tmorisse"}
 				end
 
-				it "should redirect the user to the connected page" do
+				it "should redirect the user to the index page" do
+					User.should_receive(:user_exists).with(@params['login'],@params['password']).and_return(true)
 					post '/s_auth/authentication', @params
           last_response.should be_redirect
 					follow_redirect!
@@ -164,7 +205,7 @@ describe "Application" do
 
 	end
 
-	describe "Application registration" do
+	describe "Application registration" do # APPLICATION REGISTRATION
 
 		# Create a user before each test
 		before(:each) do
@@ -185,9 +226,6 @@ describe "Application" do
 			describe "Registration application ok" do
 				
 				before(:each) do
-					@user = double(User)
-					#User.stub(:find_by_login).and_return(@user)
-					#@user.stub(:nil?).and_return(false)
 					@appli = double(Application)
 					Application.stub(:create).and_return(@appli)
 					@appli.stub(:valid?).and_return(true)
@@ -195,14 +233,15 @@ describe "Application" do
 
 				it "the user has to be connected" do
 					post '/s_auth/registration', @paramsUser
-					
+					last_request.env["rack.session"]["current_user"].should == "tmorisse"
 				end
 
-				it "should redirect the user to the connected page" do
+				it "should redirect the user to the index" do
+					post '/s_auth/registration', @paramsUser
 					post '/s_auth/registration_application'
 					last_response.should be_redirect
 					follow_redirect!
-					last_request.path.should == '/'
+					last_request.path.should == '/index'
 				end
 				
 
@@ -211,25 +250,42 @@ describe "Application" do
 			describe "Registration application not ok" do
 
 				before(:each) do
-					@user = double(User)
-					User.stub(:find_by_login).and_return(@user)
-					@user.stub(:nil?).and_return(true)
+					#@user = double(User)
 					@appli = double(Application)
 					Application.stub(:create).and_return(@appli)
 					@appli.stub(:valid?).and_return(false)
 				end
 
-				it "should rerender the form if the user is unknown" do
+				it "should rerender the form if the application is not valid" do
+					post '/s_auth/registration', @paramsUser
 					post '/s_auth/registration_application'
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/s_auth/authentication".*method="post".*}
+		    	last_response.body.should match %r{<form.*action="/s_auth/registration_application".*method="post".*}
 				end
 
 			end		
 
 		end
 
-	end
+	end # END APPLICATION REGISTRATION
+
+
+	describe "Disconnection" do	# DISCONNECTION
+
+		it "should disconnect the user by cleaning the session" do
+			#TODO : comment faire ?
+		end
+
+		it "should redirect the user to the index" do
+			get '/sessions/deco'
+			last_response.should be_redirect
+			follow_redirect!
+			last_request.path.should == '/'
+		end
+
+	end	# END DISCONNECTION
+
+
 
 
 end

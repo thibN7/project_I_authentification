@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>login page</title>
+</head>
+<body>
+
+<h1>Page protégée</h1>
+
+	<% if @user.nil? %>
+
+		<p>Hi, please connect you :</p>
+    	<a href="/s_auth/authentication"> Connection </a>
+    <p>Not registrated yet : </p>
+      <a href="/s_auth/registration"> Inscription </a>
+
+	<% else %>
+		
+		<p> Hi <%= @user %> </p>
+
+		<% if @user == "admin" %>
+			<p> You are Super Auth. </p>
+		<% end %>
+
+		<a href="/s_auth/registration_application"> Register an application. </a>
+		<a href="sessions/deco"> Disconnect </a>
+
+		<% user = User.find_by_login(@user)
+		user_id = user.id
+
+		applications = Application.where(:user_id => user_id)
+			
+		if !applications.empty? %>
+
+			<div class="listeApplications">
+				<p>Below the applications list</p>
+
+				<ul>
+					<% applications.each do |appli| %>
+						<li><%=appli.name%> : <%=appli.url%> --> <a href="/s_auth/application/delete?app=<%=appli.id%>">Delete</a> 
+						</li>
+					<% end %>
+				</ul>
+			</div>
+
+		<% else %>
+
+			<p> No application. </p>
+
+		<% end %>
+
+	<% end %>
+
+
+</body>
+</html>
+

@@ -20,7 +20,6 @@ describe User do
 
     it "should not be valid without a password" do
       subject.login = "Thibault"
-      #subject.save
       subject.valid?.should be_false
     end
 
@@ -32,7 +31,6 @@ describe User do
     
     it "should not be valid without a login" do
       subject.password = "MotDePasse"
-      #subject.save
       subject.valid?.should be_false        
     end
 
@@ -43,7 +41,6 @@ describe User do
 		end
 
     it "should not be valid without a login and a password" do
-      #subject.save
       subject.valid?.should be_false  
     end
 
@@ -70,10 +67,24 @@ describe User do
 			subject.login = "Thib"
       subject.password = "pass1"
       subject.save
-			User.find_by_login('Thib').should == nil
+			User.find_by_login('Thib').should_not == nil
 		end
 
   end
+
+	describe "Password" do
+
+   it "should encrypt the password with sha1" do
+    Digest::SHA1.should_receive(:hexdigest).with("foo").and_return("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
+    subject.password="foo"
+  end
+
+  it "should store she sha1 digest" do
+    subject.password="foo"
+    subject.password.should == "\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\""
+  end
+
+	end
 
 
 

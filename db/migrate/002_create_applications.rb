@@ -3,6 +3,7 @@ class CreateApplications < ActiveRecord::Migration
     create_table :applications do |t|
       t.string :name
       t.string :url
+			t.integer :user_id
     end
   end
 

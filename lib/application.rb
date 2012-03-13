@@ -11,4 +11,6 @@ class Application < ActiveRecord::Base
   validates :url, :presence => true
   validates :url, :uniqueness => true
 
+	validates :user_id, :presence => true
+
 end
