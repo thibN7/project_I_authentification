@@ -24,7 +24,10 @@ end
 
 # ROOT PAGE
 get '/' do
-	@user = current_user
+	if !current_user.nil?
+		user = User.find_by_login(current_user)
+		@user_id = user.id
+	end
 	erb :index
 end
 
@@ -48,7 +51,7 @@ post '/s_auth/registration' do
 		redirect '/'
 	else
 		#@registration_error = user.errors.messages
-		erb :"/s_auth/registration"
+		erb :"s_auth/registration"
 	end
 end
 
@@ -66,7 +69,6 @@ end
 post '/s_auth/authentication' do
 	if User.user_exists(params['login'],params['password'])
 		session[:current_user] = params['login']	
-		@user = params['login']
 		redirect '/'
 	else
 		#@authentication_error = :unknown_user
@@ -89,26 +91,25 @@ post '/s_auth/registration_application' do
 	appli = Application.create('name' => params['application_name'], 'url' => params['application_url'], 'user_id' => user.id)
 	if current_user
 		if appli.valid?
-			@user = user.login
-			redirect '/index'
+			redirect '/'
 		else
 			erb :"s_auth/registration_application"
 		end
 	else
-		redirect 's_auth/authentication'
+		redirect '/'
 	end
-
 end
+
 
 #------------------------
 # Delete an application
 #------------------------
 get "/s_auth/application/delete" do
   if current_user
-    @login = current_user
-    erb :"/s_auth/application/delete"
-  else
-    redirect 's_auth/authentication'
+    Application.delete(params['appli'], current_user)
+		erb :"index"
+	else
+    redirect '/'
   end
 end
 

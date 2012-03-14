@@ -57,11 +57,11 @@ describe "Application" do
 				#TODO : comment faire lorsqu'un erb suivi d'un redirect ?
 			end
 
-			it "should redirect the user to the authentication page if session doesn't exist" do
+			it "should redirect the user to the index page if session doesn't exist" do
 				get '/s_auth/application/delete'
 				last_response.should be_redirect
 		 		follow_redirect!
-		  	last_request.path.should == '/s_auth/authentication'
+		  	last_request.path.should == '/'
 			end
 
 			
@@ -241,7 +241,7 @@ describe "Application" do
 					post '/s_auth/registration_application'
 					last_response.should be_redirect
 					follow_redirect!
-					last_request.path.should == '/index'
+					last_request.path.should == '/'
 				end
 				
 
@@ -268,6 +268,63 @@ describe "Application" do
 		end
 
 	end # END APPLICATION REGISTRATION
+
+
+	describe "Delete an application" do 
+
+		describe "The user is connected" do
+
+			before(:each) do
+				@paramsUser = {'login' => 'tmorisse','password' => 'passwordThib'}
+				@paramsAppli = {'name' => 'nomAppli','url' => 'http://urlAppli.fr'}
+				post '/s_auth/registration', @paramsUser
+			end
+
+			it "should rerender the index page when an application is deleted" do
+				last_request.env["rack.session"]["current_user"].should == "tmorisse"
+				get '/s_auth/application/delete'
+				#TODO : comment tester Application.delete(params['app'], current_user) ?
+				#puts last_response.body
+				last_response.should be_ok
+			end
+
+
+			it "should rerender the index page when the user is not the owner" do
+				last_request.env["rack.session"]["current_user"].should == "tmorisse"
+				get '/s_auth/application/delete'
+				#TODO
+			end
+
+		end
+
+
+		describe "The user is not connected" do
+
+			it "should redirect the user to the index page" do
+				get '/s_auth/application/delete'
+				last_response.should be_redirect
+				follow_redirect!
+				last_request.path.should == '/'
+			end
+
+		end
+
+
+
+
+
+	end
+
+
+
+
+
+
+
+
+
+
+
 
 
 	describe "Disconnection" do	# DISCONNECTION

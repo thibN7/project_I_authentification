@@ -1,8 +1,8 @@
 class CreateUtilizations < ActiveRecord::Migration
   def up
     create_table :utilizations do |t|
-      t.integer :id_user
-      t.integer :id_application
+      t.integer :user_id
+      t.integer :application_id
     end
   end
 

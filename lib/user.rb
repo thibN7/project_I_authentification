@@ -4,6 +4,7 @@ require 'active_record'
 class User < ActiveRecord::Base
 
   # Relations
+	has_many :applications
   has_many :utilizations
   has_many :applications, :through => :utilizations
 

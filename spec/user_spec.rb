@@ -74,15 +74,15 @@ describe User do
 
 	describe "Password" do
 
-   it "should encrypt the password with sha1" do
-    Digest::SHA1.should_receive(:hexdigest).with("foo").and_return("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
-    subject.password="foo"
-  end
+		it "should encrypt the password with sha1" do
+		  Digest::SHA1.should_receive(:hexdigest).with("foo").and_return("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
+		  subject.password="foo"
+  	end
 
-  it "should store she sha1 digest" do
-    subject.password="foo"
-    subject.password.should == "\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\""
-  end
+		it "should store she sha1 digest" do
+		  subject.password="foo"
+		  subject.password.should == "\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\""
+		end
 
 	end
 

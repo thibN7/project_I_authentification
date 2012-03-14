@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>login page</title>
+  <title>Index</title>
 </head>
 <body>
 
-<h1>Page protégée</h1>
+<h1>Protected page</h1>
 
-	<% if @user.nil? %>
+	<% if current_user.nil? %>
 
 		<p>Hi, please connect you :</p>
     	<a href="/s_auth/authentication"> Connection </a>
@@ -16,38 +16,37 @@
 
 	<% else %>
 		
-		<p> Hi <%= @user %> </p>
+		<p> Hi <%= current_user %> </p>
 
-		<% if @user == "admin" %>
-			<p> You are Super Auth. </p>
-		<% end %>
+			<% applis = Application.where(:user_id => @user_id)
 
-		<a href="/s_auth/registration_application"> Register an application. </a>
-		<a href="sessions/deco"> Disconnect </a>
-
-		<% user = User.find_by_login(@user)
-		user_id = user.id
-
-		applications = Application.where(:user_id => user_id)
-			
-		if !applications.empty? %>
-
-			<div class="listeApplications">
-				<p>Below the applications list</p>
-
+			if !applis.empty? %>
+			<div class="applications">
+				<p>Below the applications list you created :</p>
 				<ul>
-					<% applications.each do |appli| %>
-						<li><%=appli.name%> : <%=appli.url%> --> <a href="/s_auth/application/delete?app=<%=appli.id%>">Delete</a> 
-						</li>
+					<% applis.each do |appli| %>
+					<li><%=appli.name%> URL --> <%=appli.url%> - <a href="/s_auth/application/delete?appli=<%=appli.id%>">Delete</a> </li>
 					<% end %>
 				</ul>
 			</div>
 
-		<% else %>
+			<%else%>
 
-			<p> No application. </p>
+				<p>You don't have any created applications.</p>
 
-		<% end %>
+			<%end%>
+
+
+
+
+
+
+
+		<a href="/s_auth/registration_application"> Register an application. </a>
+		<a href="/sessions/deco"> Disconnect </a>
+
+	
+
 
 	<% end %>
 
