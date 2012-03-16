@@ -19,6 +19,7 @@ helpers do
 
   def disconnect
     session[:current_user] = nil
+		response.set_cookie("sauth", {:value => '', :expires => Time.at(0), :path => '/'})
   end
 end
 
@@ -27,6 +28,12 @@ get '/' do
 	if !current_user.nil?
 		user = User.find_by_login(current_user)
 		@user_id = user.id
+	else
+		if !request.cookies["sauth"].nil?
+			user = User.find_by_login(request.cookies["sauth"])
+			session[:current_user] = user.login
+			@user_id = user.id
+		end
 	end
 	erb :index
 end
@@ -36,18 +43,16 @@ end
 #------------------------------
 
 # GET
-get '/s_auth/registration' do
+get '/users/new' do
 	erb :"s_auth/registration"
 end
 
 # POST
-post '/s_auth/registration' do
-
+post '/users' do
 	user = User.create('login' => params['login'], 'password' => params['password'])
-	
 	if user.valid?
-		session[:current_user] = user.login		
-		@user = user.login
+		session[:current_user] = user.login
+		response.set_cookie("sauth", {:value => current_user, :expires => Time.parse(Date.today.next_day(7).to_s), :path => '/'})	
 		redirect '/'
 	else
 		#@registration_error = user.errors.messages
@@ -61,17 +66,24 @@ end
 #------------------------------
 
 # GET
-get '/s_auth/authentication' do
+get '/sessions/new' do
 	erb :"s_auth/authentication"
 end
 
 # POST
-post '/s_auth/authentication' do
+post '/sessions' do
 	if User.user_exists(params['login'],params['password'])
-		session[:current_user] = params['login']	
+		session[:current_user] = params['login']
+		response.set_cookie("sauth", {:value => current_user, :expires => Time.parse(Date.today.next_day(7).to_s), :path => '/'})	
 		redirect '/'
 	else
-		#@authentication_error = :unknown_user
+		user = User.find_by_login(params['login'])
+		if user.nil?
+			@authentication_error = :unknown_user
+		else
+			@authentication_error = :match_password
+		end
+		@login = params['login']
 		erb :"s_auth/authentication"
 	end
 end
@@ -81,15 +93,15 @@ end
 #------------------------------
 
 # GET
-get '/s_auth/registration_application' do
+get '/applications/new' do
 	erb :"s_auth/registration_application"
 end
 
 # POST
-post '/s_auth/registration_application' do
+post '/applications' do
 	user = User.find_by_login(current_user)
 	appli = Application.create('name' => params['application_name'], 'url' => params['application_url'], 'user_id' => user.id)
-	if current_user
+	if !current_user.nil?
 		if appli.valid?
 			redirect '/'
 		else
@@ -104,9 +116,13 @@ end
 #------------------------
 # Delete an application
 #------------------------
-get "/s_auth/application/delete" do
-  if current_user
+
+# GET
+get "/applications/delete" do
+  if !current_user.nil?
     Application.delete(params['appli'], current_user)
+		user = User.find_by_login(current_user)
+		@user_id = user.id
 		erb :"index"
 	else
     redirect '/'
@@ -117,7 +133,7 @@ end
 #------------------------
 # DISCONNECTION
 #------------------------
-get '/sessions/deco' do
+get '/sessions/disconnect' do
 	disconnect
 	redirect '/'
 end

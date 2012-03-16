@@ -137,14 +137,19 @@ describe Application do
 			#Application.all.each{|appli| appli.destroy}
 		end
 
-		it "should delete an application selected by the owner" do
+		it "should delete a known application selected by the owner" do
 			Application.delete(@appli.id, @user1.login)
 			Application.find_by_id(@appli.id).should be_nil
 		end
 		
-		it "should not delete an application selected by someone who is not the owner" do
+		it "should not delete a known application selected by someone who is not the owner" do
 			Application.delete(@appli.id, @user2.login)
 			Application.find_by_id(@appli.id).should_not be_nil
+		end
+
+		it "should not delete an application which doesn't exist" do
+			Application.delete('9999999', @user1.login)
+			Application.find_by_id('9999999').should be_nil
 		end
 
 					

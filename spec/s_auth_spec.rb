@@ -1,5 +1,7 @@
 require_relative 'spec_helper'
 
+#ENV['RACK_ENV'] = 'test'
+
 require '../s_auth'
 require 'rack/test'
 
@@ -21,30 +23,34 @@ describe "Application" do
 		Application.all.each{|appli| appli.destroy}
 	end
 
-	describe "Get pages" do
+	before :all do
+		clear_cookies
+	end
 
-		it "/" do
+	describe "Get available pages" do
+
+		it "should get the root page /" do
 			get '/'
 			last_response.should be_ok
 		end
 
-		it "/s_auth/registration" do
-			get '/s_auth/registration'
+		it "it should get the page /users/new" do
+			get '/users/new'
 			last_response.should be_ok
 		end
 
-		it "/s_auth/authentication" do
-			get '/s_auth/authentication'
+		it "it should get the page /sessions/new" do
+			get '/sessions/new'
 			last_response.should be_ok
 		end
 
-		it "/s_auth/registration_application" do
-			get '/s_auth/registration_application'
+		it "it should get the page /applications/new" do
+			get '/applications/new'
 			last_response.should be_ok
 		end
 
-		it "/sessions/deco" do
-			get '/sessions/deco'
+		it "it should get the page /sessions/disconnect" do
+			get '/sessions/disconnect'
 			last_response.should be_redirect
    		follow_redirect!
     	last_request.path.should == '/'
@@ -58,7 +64,7 @@ describe "Application" do
 			end
 
 			it "should redirect the user to the index page if session doesn't exist" do
-				get '/s_auth/application/delete'
+				get '/applications/delete'
 				last_response.should be_redirect
 		 		follow_redirect!
 		  	last_request.path.should == '/'
@@ -78,18 +84,18 @@ describe "Application" do
 			@params = {'login' => 'tmorisse','password' => 'passwordThib'}
 		end
 
-		describe "get /s_auth/registration" do
+		describe "get /users/new" do
 
 			it "should return a form to post registration info" do
-		  	get '/s_auth/registration'
+		  	get '/users/new'
 		    last_response.should be_ok
-		    last_response.body.should match %r{<form.*action="/s_auth/registration".*method="post".*}
+		    last_response.body.should match %r{<form.*action="/users".*method="post".*}
 			end
 
 		end
 
 
-		describe "post /s_auth/registration" do
+		describe "post /users" do
 
 			describe "Registration available" do
 
@@ -102,13 +108,13 @@ describe "Application" do
 				it "should create a new user" do
 					User.should_receive(:create).with(@params)
 					@user.should_receive(:valid?).and_return(true)
-					post '/s_auth/registration', @params
+					post '/users', @params
 				end
 
 				it "should return to the root page" do
 					@user.stub(:login).and_return("tmorisse")
 					@user.should_receive(:valid?).and_return(true)
-					post '/s_auth/registration'
+					post '/users'
 					last_response.should be_redirect
        		follow_redirect!
         	last_request.path.should == '/'
@@ -125,62 +131,57 @@ describe "Application" do
 					#@errors = double("Errors")
 					#@user.stub(:errors).and_return(@errors)
 					#@errors.stub(:messages).and_return("Error message")
+					#TODO : stuber pour afficher les erreurs
 				end
 
 				it "should rerender the registration form" do 
 					@user.should_receive(:valid?).and_return(false)
-					post '/s_auth/registration', @params
+					post '/users', @params
 					last_response.should be_ok
-					last_response.body.should match %r{<form.*action="/s_auth/registration".*method="post".*}
+					last_response.body.should match %r{<form.*action="/users".*method="post".*}
 				end
 
 			end
 
 		end
-
-	
-
-		
 		
 	end	# END USER REGISTRATION
 
 
+	# USER AUTHENTICATION
 	describe "User Authentication" do
 
-		# Create a user before each test
-		before(:each) do
-			@params = {'login' => 'tmorisse','password' => 'passwordThib'}
-		end
-
-		describe "get /s_auth/authentication" do
+		describe "get /sessions/new" do
 			it "should return a form to post authentication info" do
-		  	get '/s_auth/authentication'
+		  	get '/sessions/new'
 		    last_response.should be_ok
-		    last_response.body.should match %r{<form.*action="/s_auth/authentication".*method="post".*}
+		    last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
 			end
 		end
 
-		describe "post /s_auth/authentication" do
+		describe "post /sessions" do
+
+			before(:each) do
+				@params = {'login' => 'tmorisse','password' => 'passwordThib'}
+				@user = double(User)
+				User.stub(:user_exists).and_return(@user)
+			end
 
 			describe "Authentication ok" do
-				
-				before(:each) do
-					@user = double(User)
-					User.stub(:user_exists).and_return(@user)
-					@user.stub(:nil?).and_return(false)
-					@user.stub(:login){"tmorisse"}
-				end
 
-				it "should redirect the user to the index page" do
+				before(:each) do
 					User.should_receive(:user_exists).with(@params['login'],@params['password']).and_return(true)
-					post '/s_auth/authentication', @params
+				end
+				
+				it "should redirect the user to the index page" do
+					post '/sessions', @params
           last_response.should be_redirect
 					follow_redirect!
 					last_request.path.should == '/'
 				end
 
 				it "should store the login of the user into the session" do
-					post '/s_auth/authentication', @params
+					post '/sessions', @params
 					last_request.env["rack.session"]["current_user"].should == "tmorisse"
 				end				
 
@@ -189,16 +190,24 @@ describe "Application" do
 			describe "Authentication not ok" do
 
 				before(:each) do
-					@user = double(User)
+					User.should_receive(:user_exists).with(@params['login'],@params['password']).and_return(false)
 					User.stub(:find_by_login).and_return(@user)
-					@user.stub(:nil?).and_return(true)
 				end
 
-				it "should rerender the form" do
-					post '/s_auth/authentication'
+				it "should rerender the form if the user is unknown" do
+					@user.stub(:nil?).and_return(true)
+					post '/sessions', @params
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/s_auth/authentication".*method="post".*}
+		    	last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
 				end
+
+				it "should rerender the form if the password is wrong" do
+					@user.stub(:nil?).and_return(false)
+					post '/sessions', @params
+					last_response.should be_ok
+		    	last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
+				end
+
 			end
 
 		end
@@ -213,15 +222,15 @@ describe "Application" do
 			@paramsAppli = {'name' => 'nomAppli','url' => 'http://urlAppli.fr'}
 		end
 
-		describe "get /s_auth/registration_application" do
+		describe "get /applications/new" do
 			it "should return a form to post registration application" do
-		  	get '/s_auth/registration_application'
+		  	get '/applications/new'
 		    last_response.should be_ok
-		    last_response.body.should match %r{<form.*action="/s_auth/registration_application".*method="post".*}
+		    last_response.body.should match %r{<form.*action="/applications".*method="post".*}
 			end
 		end
 
-		describe "post /s_auth/registration_application" do
+		describe "post /applications" do
 	
 			describe "Registration application ok" do
 				
@@ -232,13 +241,13 @@ describe "Application" do
 				end
 
 				it "the user has to be connected" do
-					post '/s_auth/registration', @paramsUser
+					post '/users', @paramsUser
 					last_request.env["rack.session"]["current_user"].should == "tmorisse"
 				end
 
 				it "should redirect the user to the index" do
-					post '/s_auth/registration', @paramsUser
-					post '/s_auth/registration_application'
+					post '/users', @paramsUser
+					post '/applications'
 					last_response.should be_redirect
 					follow_redirect!
 					last_request.path.should == '/'
@@ -257,10 +266,10 @@ describe "Application" do
 				end
 
 				it "should rerender the form if the application is not valid" do
-					post '/s_auth/registration', @paramsUser
-					post '/s_auth/registration_application'
+					post '/users', @paramsUser
+					post '/applications'
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/s_auth/registration_application".*method="post".*}
+		    	last_response.body.should match %r{<form.*action="/applications".*method="post".*}
 				end
 
 			end		
@@ -270,6 +279,7 @@ describe "Application" do
 	end # END APPLICATION REGISTRATION
 
 
+	# DELETE AN APPLICATION
 	describe "Delete an application" do 
 
 		describe "The user is connected" do
@@ -277,12 +287,12 @@ describe "Application" do
 			before(:each) do
 				@paramsUser = {'login' => 'tmorisse','password' => 'passwordThib'}
 				@paramsAppli = {'name' => 'nomAppli','url' => 'http://urlAppli.fr'}
-				post '/s_auth/registration', @paramsUser
+				post '/users', @paramsUser
 			end
 
 			it "should rerender the index page when an application is deleted" do
 				last_request.env["rack.session"]["current_user"].should == "tmorisse"
-				get '/s_auth/application/delete'
+				get '/applications/delete'
 				#TODO : comment tester Application.delete(params['app'], current_user) ?
 				#puts last_response.body
 				last_response.should be_ok
@@ -301,20 +311,19 @@ describe "Application" do
 		describe "The user is not connected" do
 
 			it "should redirect the user to the index page" do
-				get '/s_auth/application/delete'
-				last_response.should be_redirect
-				follow_redirect!
+				get '/applications/delete'
+				#last_response.should be_redirect
+				#follow_redirect!
+puts last_request
 				last_request.path.should == '/'
 			end
 
 		end
-
-
-
+		
 
 
 	end
-
+	# END DELETE AN APPLICATION
 
 
 
@@ -334,7 +343,7 @@ describe "Application" do
 		end
 
 		it "should redirect the user to the index" do
-			get '/sessions/deco'
+			get '/sessions/disconnect'
 			last_response.should be_redirect
 			follow_redirect!
 			last_request.path.should == '/'

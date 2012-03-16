@@ -7,19 +7,21 @@
 
 <h1>Authentication</h1>
 
+
 <% if @authentication_error.nil? %>
 	<p class="info">Please find below the form to fill in to authenticate.</p>
 <% else %>
 	<p>Error during authentication</p>
 		<% if @authentication_error == :unknown_user %>
-			The following login <%= @login %> does not exist.
+			The following login "<%= @login %>" does not exist.
 		<% else %>
 			The password does not match with the login <%= @login %>.
 		<% end %>
 	</p>
 <% end %>
 
-<form action="/s_auth/authentication" method="post">
+
+<form action="/sessions" method="post">
 
   <div class="field">
     <label for="session_login">Login</label><br />

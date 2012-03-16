@@ -5,45 +5,42 @@
 </head>
 <body>
 
-<h1>Protected page</h1>
+<h1>Welcome</h1>
 
 	<% if current_user.nil? %>
 
 		<p>Hi, please connect you :</p>
-    	<a href="/s_auth/authentication"> Connection </a>
+    	<a href="/sessions/new"> Connect </a>
     <p>Not registrated yet : </p>
-      <a href="/s_auth/registration"> Inscription </a>
+      <a href="/users/new"> Register </a>
 
 	<% else %>
 		
 		<p> Hi <%= current_user %> </p>
 
-			<% applis = Application.where(:user_id => @user_id)
+		<% applis = Application.where(:user_id => @user_id)
 
-			if !applis.empty? %>
-			<div class="applications">
-				<p>Below the applications list you created :</p>
-				<ul>
-					<% applis.each do |appli| %>
-					<li><%=appli.name%> URL --> <%=appli.url%> - <a href="/s_auth/application/delete?appli=<%=appli.id%>">Delete</a> </li>
-					<% end %>
-				</ul>
-			</div>
+		if !applis.empty? %>
+		<div class="applications">
+			<p>Below the applications list you created :</p>
+			<ul>
+				<% applis.each do |appli| %>
+				<li><%=appli.name%> URL --> <%=appli.url%> - <a href="/applications/delete?appli=<%=appli.id%>">Delete</a> </li>
+				<% end %>
+			</ul>
+		</div>
 
-			<%else%>
+		<%else%>
 
-				<p>You don't have any created applications.</p>
+			<p>You don't have any created applications.</p>
 
-			<%end%>
-
-
+		<%end%>
 
 
 
 
-
-		<a href="/s_auth/registration_application"> Register an application. </a>
-		<a href="/sessions/deco"> Disconnect </a>
+		<a href="/applications/new"> Register an application. </a>
+		<a href="/sessions/disconnect"> Disconnect </a>
 
 	
 
