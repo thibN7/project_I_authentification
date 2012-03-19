@@ -8,17 +8,17 @@ describe Application do
     Application.new
   end
 
+	before(:each) do	
+		User.all.each{|user| user.destroy}
+		Application.all.each{|appli| appli.destroy}
+	end
+
+	after(:each) do
+		User.all.each{|user| user.destroy}
+		Application.all.each{|appli| appli.destroy}
+	end
+
   describe "Valid?" do
-
-		before(:each) do	
-			User.all.each{|user| user.destroy}
-			Application.all.each{|appli| appli.destroy}
-		end
-
-		after(:each) do
-			User.all.each{|user| user.destroy}
-			Application.all.each{|appli| appli.destroy}
-		end
 
     it "should not be valid without an url" do
 	 		subject.name = "NomAppli"
@@ -152,10 +152,38 @@ describe Application do
 			Application.find_by_id('9999999').should be_nil
 		end
 
-					
-
 	end
 
+	# APPLICATION URL REDIRECTION
+	describe "Application Url Redirection" do
+
+		before(:each) do
+			@paramsUser1 = {'login' => 'tmomo','password' => 'passwordThib'}
+			User.create(@paramsUser1)
+			@user1 = User.find_by_login('tmomo')
+			Application.create('name' => 'nomAppli','url' => 'http://urlAppli.fr','user_id' => @user1.id)
+			@appli = Application.find_by_name('nomAppli')
+			@origin = '/protected'
+		end
+
+		describe "The application exists" do
+
+			it "should redirect the user to the adress he/she comes from and with the login as parameter" do
+				Application.redirect(@appli, @origin, @user1).should == 'http://urlAppli.fr/protected?login=tmomo'
+			end
+		
+		end
+	
+		describe "The application doesn't exist" do
+
+			it "should redirect the user to the / page" do
+				Application.redirect(@appli45, @origin, @user1).should == '/'
+			end
+
+		end
+
+	end
+	# END APPLICATION URL REDIRECTION
 
 	
 

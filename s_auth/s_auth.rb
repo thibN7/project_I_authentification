@@ -9,7 +9,8 @@ require 'lib/user.rb'
 require 'database.rb'
 
 
-use Rack::Session::Pool
+#use Rack::Session::Pool
+
 
 # HELPERS
 helpers do 
@@ -17,10 +18,28 @@ helpers do
     session[:current_user]
   end
 
+	def connect(user)
+		session[:current_user] = user.login
+		response.set_cookie("sauth", {:value => user.login, :expires => Time.parse(Date.today.next_day(7).to_s), :path => '/'})
+	end
+
   def disconnect
     session[:current_user] = nil
 		response.set_cookie("sauth", {:value => '', :expires => Time.at(0), :path => '/'})
   end
+
+	def connected?
+		if session[:current_user].nil? && !request.cookies["sauth"].nil?
+			user = User.find_by_login(request.cookies["sauth"])
+			if !user.nil?
+				connect(user)
+			else
+				disconnect
+			end
+		end
+		!session[:current_user].nil?
+	end
+
 end
 
 # ROOT PAGE
@@ -51,8 +70,7 @@ end
 post '/users' do
 	user = User.create('login' => params['login'], 'password' => params['password'])
 	if user.valid?
-		session[:current_user] = user.login
-		response.set_cookie("sauth", {:value => current_user, :expires => Time.parse(Date.today.next_day(7).to_s), :path => '/'})	
+		connect(user)
 		redirect '/'
 	else
 		#@registration_error = user.errors.messages
@@ -72,12 +90,11 @@ end
 
 # POST
 post '/sessions' do
+	user = User.find_by_login(params['login'])
 	if User.user_exists(params['login'],params['password'])
-		session[:current_user] = params['login']
-		response.set_cookie("sauth", {:value => current_user, :expires => Time.parse(Date.today.next_day(7).to_s), :path => '/'})	
+		connect(user)
 		redirect '/'
 	else
-		user = User.find_by_login(params['login'])
 		if user.nil?
 			@authentication_error = :unknown_user
 		else
@@ -99,9 +116,9 @@ end
 
 # POST
 post '/applications' do
-	user = User.find_by_login(current_user)
-	appli = Application.create('name' => params['application_name'], 'url' => params['application_url'], 'user_id' => user.id)
-	if !current_user.nil?
+	if current_user
+    user = User.find_by_login(current_user)
+	  appli = Application.create('name' => params['application_name'], 'url' => params['application_url'], 'user_id' => user.id)
 		if appli.valid?
 			redirect '/'
 		else
@@ -137,6 +154,29 @@ get '/sessions/disconnect' do
 	disconnect
 	redirect '/'
 end
+
+#------------------------
+# CLIENT APPLICATION
+#------------------------
+
+# GET
+get '/:appli/sessions/new' do
+	if current_user
+		appli = Application.find_by_name(params[:appli])
+		user = User.find_by_login(current_user)
+		#redirect appli.url+params['origin']
+		appli_redirect = Application.redirect(appli, params['origin'], user)
+		redirect appli_redirect
+	else
+		erb :"s_auth/authentication"
+	end
+end
+
+# POST
+post '/:appli/sessions' do
+
+end
+
 
 
 

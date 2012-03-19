@@ -35,4 +35,18 @@ class Application < ActiveRecord::Base
 
 	end
 
+	def self.redirect(appli, origin, user)
+		if !appli.nil?
+			utilization = Utilization.new
+			utilization.application_id = appli.id
+			utilization.user_id = user.id
+			utilization.save
+			redirect = appli.url+origin+'?login='+user.login
+		else
+			redirect = '/'		
+		end
+		redirect
+	end
+
+
 end
