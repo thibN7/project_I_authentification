@@ -4,10 +4,6 @@ require 'application'
 
 describe Application do
 
-  subject do
-    Application.new
-  end
-
 	before(:each) do	
 		User.all.each{|user| user.destroy}
 		Application.all.each{|appli| appli.destroy}
@@ -18,6 +14,28 @@ describe Application do
 		Application.all.each{|appli| appli.destroy}
 	end
 
+	#-----------------------------
+	# USED METHODS
+	#-----------------------------
+	describe "Used methods" do
+
+		it "should have the name" do
+			subject.should respond_to :name
+		end
+
+		it "should have the url" do
+			subject.should respond_to :url
+		end
+
+		it "should have the user id" do
+			subject.should respond_to :user_id
+		end
+	
+	end	
+
+	#--------------------
+	# VALID? METHOD
+	#--------------------
   describe "Valid?" do
 
     it "should not be valid without an url" do
@@ -118,39 +136,24 @@ describe Application do
 
   end
 
+	#--------------------
+	# DELETE METHOD
+	#--------------------
 	describe "Delete an application" do
 
 		before(:each) do
 			@paramsUser1 = {'login' => 'tmomo','password' => 'passwordThib'}
 			User.create(@paramsUser1)
-			@paramsUser2 = {'login' => 'toto','password' => 'pwdToto'}
-			User.create(@paramsUser2)
-			@paramsAppli = {'name' => 'nomAppli','url' => 'http://urlAppli.fr'}
 			@user1 = User.find_by_login('tmomo')
-			@user2 = User.find_by_login('toto')
 			Application.create('name' => 'nomAppli','url' => 'http://urlAppli.fr','user_id' => @user1.id)
 			@appli = Application.find_by_name('nomAppli')
 		end
 
-		after(:each) do
-			#User.all.each{|user| user.destroy}
-			#Application.all.each{|appli| appli.destroy}
-		end
-
 		it "should delete a known application selected by the owner" do
-			Application.delete(@appli.id, @user1.login)
+			Application.delete(@appli)
 			Application.find_by_id(@appli.id).should be_nil
 		end
 		
-		it "should not delete a known application selected by someone who is not the owner" do
-			Application.delete(@appli.id, @user2.login)
-			Application.find_by_id(@appli.id).should_not be_nil
-		end
-
-		it "should not delete an application which doesn't exist" do
-			Application.delete('9999999', @user1.login)
-			Application.find_by_id('9999999').should be_nil
-		end
 
 	end
 

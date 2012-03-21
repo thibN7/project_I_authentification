@@ -103,10 +103,11 @@ end
 
 # GET
 get '/users/:login' do
-	if current_user == params['login']
+	if current_user == params[:login]
 		erb :"users/profil"
 	else
-		#TODO
+		@error_forbidden = :current_user_match_login
+		erb :"errors/forbidden"
 	end
 end
 
@@ -120,35 +121,46 @@ get '/applications/new' do
 	if current_user 
 		erb :"applications/new"
 	else
-		#TODO
+		@error_forbidden = :current_user_nil
+		erb :"errors/forbidden"
 	end
 end
 
 # POST
 post '/applications' do
 	user = User.find_by_login(current_user)
-
-	#TODO : create
-	#EXEMPLE : User.create(:first_name => 'Jamie')
-
-	name = params['application_name']
-  url = params['application_url']
-  user_id = user.id
-
-  #params = { 'application' => {"name" => name, "url" => url, "user_id" => uid}}
-
-  appli = Application.create("name" => name, "url" => url, "user_id" => user_id)
-
-
+  appli = Application.create("name" => params['name'], "url" => params['url'], "user_id" => user.id)
+	if appli.valid?
+		redirect '/users/'+current_user
+	else
+		#TODO 
+		#@registration_error = appli.errors.messages
+		erb :"/applications/new"
+	end
 end
 
 #GET DELETE
-get '/applications/delete' do
+get '/applications/delete/:name' do
 	if current_user
-		Application.delete(params['appli'], current_user)
+		appli = Application.find_by_name(params[:name])
+		if !appli.nil?
+			user = User.find_by_login(current_user)
+			if user.id == appli.user_id
+				Application.delete(appli)
+				redirect '/users/'+current_user
+			else
+				@error_forbidden = :user_id_appli_user_id_match
+				erb :"errors/forbidden"
+			end
+		else
+			@error = :appli_doesnt_exist
+			erb :"errors/not_found"
+		end
 	else
-
+		@error_forbidden = :current_user_nil
+		erb :"errors/forbidden"
 	end
+
 end
 
 

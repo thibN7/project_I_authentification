@@ -7,7 +7,9 @@
 
 <h1>Welcome</h1>
 
-	<% if current_user.nil? %>
+	<% if current_user.nil? 
+		
+			%>
 
 		<p>Hi, please connect you :</p>
     	<a href="/sessions/new"> Connect </a>

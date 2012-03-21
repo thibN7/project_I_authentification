@@ -15,26 +15,21 @@ class Application < ActiveRecord::Base
 	validates :user_id, :presence => true
 	validates :user_id, :numericality => true
 
-	def self.delete(appli_id, user)
-		app = Application.find_by_id(appli_id)
-		user = User.find_by_login(user)
+	#DELETE METHOD
+	def self.delete(appli)
 		
-		if !app.nil? && !user.nil?
-			if user.id == app.user_id
-				utilizations = Utilization.where(:application_id => app.id)
-				utilizations.each do |util|
-					util.destroy
-				end
-				app.destroy
-			else
-				@error_not_owner = true
-			end
-		else
-			@error_app = true
-		end			
+		utilizations = Utilization.where(:application_id => appli.id)
+
+		if utilizations != nil
+			utilizations.each do |util|
+    		util.destroy
+    	end
+		end
+    appli.destroy
 
 	end
 
+	#REDIRECT METHOD
 	def self.redirect(appli, origin, user)
 		if !appli.nil?
 			utilization = Utilization.new

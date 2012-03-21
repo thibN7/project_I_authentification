@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Page</title>
+</head>
+<body>
+
+<h1>Admin Page</h1>
+        
+
+          
+         <a href="/"> Back to index </a>
+
+         <% users = User.all%>
+
+           <div class="listappown">
+             <p>List des users</p>
+             
+            <ul>
+              <% users.each do |u| %>
+                <%if u.login != "admin"%>
+                   
+                  <li><%=u.login%> - <a href="/users/delete/<%= u.login%>"" >Supprimer</a> </li>
+                <% end %>
+              <% end %>
+            </ul>
+            </div>
+
+        
+
+</body>
+</html>

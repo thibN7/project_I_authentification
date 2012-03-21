@@ -224,6 +224,10 @@ describe "Application" do
 
 		describe "get /users/:login" do
 
+			before(:each) do
+				@session = { "rack.session" => { :current_user => "tmorisse" } }
+			end
+
 			it "should get /users/tmorisse" do
 				get '/users/tmorisse'
 				last_response.should be_ok
@@ -233,14 +237,20 @@ describe "Application" do
 			describe "The login and the current_user are the same" do
 
 				it "should return the user page" do
-					get '/users/tmorisse', {}, "rack.session" => { :current_user => "tmorisse" }
+					get '/users/tmorisse', {}, @session
 					last_response.body.should match %r{<title>User Profile</title>.*}
 				end
 
 			end
 
 			describe "The login and the current_user are not the same" do
-				#TODO
+
+				it "should redirect the user to the forbidden page" do
+					get '/users/toto', {}, @session
+					last_response.should be_ok
+				  last_response.body.should match %r{<title>Forbidden</title>.*}
+				end
+
 			end
 
 		end
@@ -277,7 +287,13 @@ describe "Application" do
 			end
 
 			describe "The current_user doesn't exist" do
-				#TODO
+
+				it "should redirect the user to the forbidden page" do
+					get '/users/toto'
+					last_response.should be_ok
+				  last_response.body.should match %r{<title>Forbidden</title>.*}
+				end
+
 			end
 
 		end
@@ -286,12 +302,18 @@ describe "Application" do
 		describe "post /applications" do
 
 			before(:each) do
-				@paramsUser = {'login' => 'tmorisse','password' => 'passwordThib'}
-				@paramsAppli = {'name' => 'nomAppli','url' => 'http://urlAppli.fr'}
+				@paramsAppli = {"name" => "nomAppli","url" => "http://urlAppli.fr"}
+				@paramsAppli1 = {"name" => "nomAppli","url" => "http://urlAppli.fr","user_id" => 12}
 				@session = { "rack.session" => { :current_user => "tmorisse" } }
 				@user = double(User)
 				@appli = double(Application)
+				User.stub(:find_by_login){@user}
 				@user.stub(:id){12}
+			end
+
+			it "should exist a current_user" do
+				post '/applications', @paramsAppli, @session
+				last_request.env["rack.session"][:current_user].should == "tmorisse"
 			end
 			
 			it "should use find_by_login" do
@@ -300,24 +322,31 @@ describe "Application" do
 			end
 
 			it "should use create" do
-				#TODO : create
-
-				Application.should_receive(:create).with("name"=>"appli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
-
+				Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
 				post '/applications', @paramsAppli, @session
 			end
 		
 			describe "Registration ok" do
 
-				before(:each) do
-					#@appli.should_receive(:valid?).and_return(true)
+				it "should redirect to the user page /users/:login" do
+					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
+					@appli.should_receive(:valid?).and_return(true)
+					post '/applications', @paramsAppli, @session
+					last_response.should be_redirect
+          follow_redirect!
+          last_request.path.should == '/users/tmorisse'
 				end
 
-				it "should redirect to the user page /users/:login" do
-					#post '/applications', @paramsAppli, @session
-					#last_response.should be_redirect
-          #follow_redirect!
-          #last_request.path.should == '/users/tmorisse'
+			end
+
+			describe "Registration not ok" do
+
+				it "should rerender the form" do
+					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
+					@appli.should_receive(:valid?).and_return(false)
+					post '/applications', @paramsAppli, @session
+					last_response.should be_ok
+		    	last_response.body.should match %r{<form.*action="/applications".*method="post".*}
 				end
 
 			end
@@ -325,17 +354,98 @@ describe "Application" do
 		end
 
 		# GET APPLICATION/DELETE
-		describe "get /application/delete/:id" do
+		describe "get /application/delete/:name" do
 
 			describe "The current_user exists" do
 
 				before(:each) do
 					@session = { "rack.session" => { :current_user => "tmorisse" } }
+					@appli = double(Application)
+					@user = double(User)
+					Application.stub(:find_by_name){@appli}
 				end
 
-				it "should use delete" do
-					#Application.should_receive(:delete).with(12, 'tmorisse')
-					#get '/application/delete?appli=12', {}, @session
+				it "should exist a current_user" do
+					get '/applications/delete/appliTest', {}, @session
+					last_request.env["rack.session"][:current_user].should == "tmorisse"
+				end
+
+				it "should use find_by_name to find an application" do
+					Application.should_receive(:find_by_name).with("appliTest")
+					get '/applications/delete/appliTest', {}, @session
+				end
+
+				describe "The application exists" do
+
+					before(:each) do
+						@appli.stub(:nil?){false}
+						User.stub(:find_by_login){@user}
+					end
+
+					it "should use find_by_login" do
+						Application.should_receive(:find_by_name).with("appliTest")
+						User.should_receive(:find_by_login).with("tmorisse")
+						get '/applications/delete/appliTest', {}, @session
+					end
+
+					describe "The current_user and the application owner are the same" do
+
+						before(:each) do
+							@appli.stub(:user_id){12}
+							@user.stub(:id){12}
+							Application.stub(:delete)
+						end
+
+						it "should use delete" do
+							Application.should_receive(:delete).with(@appli)
+							get '/applications/delete/appliTest', {}, @session
+						end
+
+						it "should redirect to the user page" do
+							Application.should_receive(:delete).with(@appli)
+							Application.should_receive(:find_by_name).with("appliTest")
+							User.should_receive(:find_by_login).with("tmorisse")
+							get '/applications/delete/appliTest', {}, @session
+							last_response.should be_redirect
+		          follow_redirect!
+	          	last_request.path.should == '/users/tmorisse'
+						end
+
+					end
+
+					describe "The current_user and the application owner are not the same" do
+
+						it "should return the user to the forbidden page" do
+							@appli.stub(:user_id){12}
+							@user.stub(:id){33}
+							get '/applications/delete/appliTest', {}, @session
+							last_response.should be_ok
+							last_response.body.should match %r{<title>Forbidden</title>.*}
+						end
+
+					end
+
+				end
+
+				describe "The application doesn't exist" do
+					
+					it "should return the user to the not found page" do
+						@appli.stub(:nil?){true}
+						get '/applications/delete/appliTest', {}, @session
+						last_response.should be_ok
+						last_response.body.should match %r{<title>Not found</title>.*}
+					end
+
+				end
+
+			end
+
+			describe "The current_user doesn't exist" do
+
+				it "should return the user to the forbidden page" do
+					get '/applications/delete/appliTest'
+					last_response.should be_ok
+				  last_response.body.should match %r{<title>Forbidden</title>.*}
 				end
 
 			end
@@ -343,8 +453,11 @@ describe "Application" do
 		end
 
 	end
+	# END APPLICATION
 
+	#---------------------------------------------------------------
 
+	
 
 
 end
