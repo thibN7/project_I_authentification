@@ -18,33 +18,15 @@
 		
 		<p> Hi <%= current_user %> </p>
 
-		<% applis = Application.where(:user_id => @user_id)
-
-		if !applis.empty? %>
-		<div class="applications">
-			<p>Below the applications list you created :</p>
-			<ul>
-				<% applis.each do |appli| %>
-				<li><%=appli.name%> URL --> <%=appli.url%> - <a href="/applications/delete?appli=<%=appli.id%>">Delete</a> </li>
-				<% end %>
-			</ul>
-		</div>
-
-		<%else%>
-
-			<p>You don't have any created applications.</p>
-
-		<%end%>
+		<p>
+			<% params['login'] = current_user %>
+      <a href="/users/<%= params['login']%>"> Your profile. </a>
+		</p>
 
 
-
-
-		<a href="/applications/new"> Register an application. </a>
 		<a href="/sessions/disconnect"> Disconnect </a>
 
 	
-
-
 	<% end %>
 
 

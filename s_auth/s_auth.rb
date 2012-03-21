@@ -44,7 +44,7 @@ end
 
 # ROOT PAGE
 get '/' do
-	if !current_user.nil?
+	if current_user
 		user = User.find_by_login(current_user)
 		@user_id = user.id
 	else
@@ -85,7 +85,11 @@ end
 
 # GET
 get '/sessions/new' do
-	erb :"s_auth/authentication"
+	if connected?
+		redirect '/'
+	else
+		erb :"s_auth/authentication"
+	end
 end
 
 # POST
@@ -136,7 +140,7 @@ end
 
 # GET
 get "/applications/delete" do
-  if !current_user.nil?
+  if current_user
     Application.delete(params['appli'], current_user)
 		user = User.find_by_login(current_user)
 		@user_id = user.id
@@ -154,6 +158,7 @@ get '/sessions/disconnect' do
 	disconnect
 	redirect '/'
 end
+
 
 #------------------------
 # CLIENT APPLICATION
@@ -174,7 +179,15 @@ end
 
 # POST
 post '/:appli/sessions' do
-
+	if current_user
+		appli = Application.find_by_name(params[:appli])
+		user = User.find_by_login(current_user)
+		#redirect appli.url+params['origin']
+		appli_redirect = Application.redirect(appli, params['origin'], user)
+		redirect appli_redirect
+	else
+		
+	end
 end
 
 

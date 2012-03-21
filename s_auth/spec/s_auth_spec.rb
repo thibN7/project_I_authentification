@@ -1,7 +1,5 @@
 require_relative 'spec_helper'
 
-#ENV['RACK_ENV'] = 'test'
-
 require '../s_auth'
 require 'rack/test'
 
@@ -34,22 +32,40 @@ describe "Application" do
 			last_response.should be_ok
 		end
 
-		it "it should get the page /users/new" do
+		it "should get the page /users/new" do
 			get '/users/new'
 			last_response.should be_ok
 		end
 
-		it "it should get the page /sessions/new" do
+		it "should get the page /sessions/new" do
 			get '/sessions/new'
 			last_response.should be_ok
 		end
 
-		it "it should get the page /applications/new" do
+		describe "get /sessions/new" do
+
+			describe "The user is connected" do
+				it "should redirect the user to the / page" do
+					#TODO : comment tester avec connected ?
+				end
+			end
+
+			describe "The user is not connected" do
+				it "should redirect the user to the / page" do
+					#TODO : comment tester avec connected ?
+					#get '/sessions/new'
+					#last_response.should be_ok
+				end
+			end
+
+		end
+
+		it "should get the page /applications/new" do
 			get '/applications/new'
 			last_response.should be_ok
 		end
 
-		it "it should get the page /sessions/disconnect" do
+		it "should get the page /sessions/disconnect" do
 			get '/sessions/disconnect'
 			last_response.should be_redirect
    		follow_redirect!
@@ -62,7 +78,7 @@ describe "Application" do
 				session = {'rack.session'=> {:current_user => 'toto'} }
 				get '/s_auth/application/delete', {}, session
 				#TODO : comment faire lorsqu'un erb suivi d'un redirect ?
-				puts last_request.env['rack.session'][:current_user]
+				#puts last_request.env['rack.session'][:current_user]
 				#last_response.should be_ok
 			end
 
@@ -110,13 +126,13 @@ describe "Application" do
 					#@session = {'rack.session'=> {:current_user => 'toto'} }
 				end
 
+
 				it "should create a new user" do
 					User.should_receive(:create).with(@params)
 					@user.should_receive(:valid?).and_return(true)
 					post '/users', @params
 					print last_response.body
 					last_request.env["rack.session"][:current_user].should == "tmorisse"
-				
 				end
 
 				it "should define a cookie" do
@@ -124,14 +140,12 @@ describe "Application" do
 					@user.should_receive(:valid?).and_return(true)
 					post '/users', @params
 					last_response.headers["Set-Cookie"].should be_true
-
-
-
 				end
 
 				it "should return to the root page" do
 					@user.stub(:login).and_return("tmorisse")
 					@user.should_receive(:valid?).and_return(true)
+					@user.should_receive(:login).and_return("tmorisse")
 					post '/users'
 					last_response.should be_redirect
        		follow_redirect!
@@ -152,7 +166,8 @@ describe "Application" do
 					#TODO : stuber pour afficher les erreurs
 				end
 
-				it "should rerender the registration form" do 
+				it "should rerender the registration form" do
+					#@user.should_receive(:create).with(@params)
 					@user.should_receive(:valid?).and_return(false)
 					post '/users', @params
 					last_response.should be_ok
@@ -389,19 +404,18 @@ describe "Application" do
 
 
 	describe "User authentication for a client application" do
+
+		before(:each) do
+			@appli = double(Application)
+			Application.stub(:find_by_name){@appli}
+			@user = double(User)
+			User.stub(:find_by_login){@user}
+			@appli.stub(:url){'http://www.appliCliente.fr'}
+			@params = {"origin"=>"/protected"}
+			@session = { "rack.session" => { :current_user => "tmorisse" } }
+		end
 		
 		describe "get '/:appli/sessions/new'" do
-
-			before(:each) do
-				@appli = double(Application)
-				Application.stub(:find_by_name){@appli}
-				@user = double(User)
-				User.stub(:find_by_login){@user}
-				@appli.stub(:url){'http://www.appliCliente.fr'}
-				@params = {"origin"=>"/protected"}
-				@session = { "rack.session" => { :current_user => "tmorisse" } }
-			end
-	
 
 			describe "The user is connected" do
 		
@@ -415,6 +429,7 @@ describe "Application" do
 				end
 			
 				it "should redirect the user to the origin page of the application" do
+					User.should_receive(:find_by_login).with('tmorisse')
 					get '/appli_1/sessions/new', @params, @session
 					last_response.should be_redirect
 					follow_redirect!
@@ -435,8 +450,52 @@ describe "Application" do
 
 		end
 
+
+
 		describe "post '/:appli/sessions'" do
 
+			describe "The user is connected" do
+
+				before(:each) do
+					Application.stub(:redirect){'http://www.appliCliente.fr/protected'}
+				end
+
+				it "should get an application thanks to its name" do
+					Application.should_receive(:find_by_name).with('appli_1')
+					post '/appli_1/sessions', @params, @session
+				end
+
+				it "should redirect the user to the origin page of the application" do
+					User.should_receive(:find_by_login).with('tmorisse')
+					post '/appli_1/sessions', @params, @session
+					last_response.should be_redirect
+					follow_redirect!
+					last_request.url.should == 'http://www.appliCliente.fr/protected'
+				end
+				
+				
+			end
+
+			describe "The user is not connected" do
+
+				before(:each) do
+					User.should_receive(:find_by_login).with('tmorisse')
+					@paramsUser = {'login' => 'tmorisse','password' => 'passwordThib'}
+				end
+
+				describe "The user exists" do
+				
+					it "should redirect the user to the origin page of the application" do
+						
+					end
+					
+				end
+
+				describe "The user doesn't exist" do
+
+				end
+
+			end		
 
 
 		end
