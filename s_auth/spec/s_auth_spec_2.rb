@@ -236,10 +236,31 @@ describe "Application" do
 			
 			describe "The login and the current_user are the same" do
 
-				it "should return the user page" do
+				before(:each) do
+					@user = double(User)
+					User.stub(:find_by_login){@user}
+					@appli = double(Application)	
+					Application.stub(:where){@appli}
+					@user.stub(:id){12}
+					# Add stub for user page profile
+					@appli.stub(:empty?)
+					@appli.stub(:each)
+				end
+	
+				it "should use find_by_login method" do
+					User.should_receive(:find_by_login)
+					get '/users/tmorisse', {}, @session
+				end
+			
+				it "should use 'where' method" do
+					Application.should_receive(:where).with(:user_id => 12)
+					get '/users/tmorisse', {}, @session
+				end	
+
+				it "should render the user page" do
 					get '/users/tmorisse', {}, @session
 					last_response.body.should match %r{<title>User Profile</title>.*}
-				end
+				end				
 
 			end
 
@@ -457,7 +478,7 @@ describe "Application" do
 
 	#---------------------------------------------------------------
 
-	
+
 
 
 end

@@ -104,6 +104,8 @@ end
 # GET
 get '/users/:login' do
 	if current_user == params[:login]
+		user = User.find_by_login(current_user)
+		@applications = Application.where(:user_id => user.id)
 		erb :"users/profil"
 	else
 		@error_forbidden = :current_user_match_login

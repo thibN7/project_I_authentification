@@ -13,17 +13,14 @@
 	<a href="/applications/new"> Create an application</a>
 	</p>
 
-	<% user = User.find_by_login(current_user)
-	applications = Application.where(:user_id => user.id)
-
-	if !applications.empty?	%>
+	<% if !@applications.empty?	%>
 
 		<div class="appListCreated">
 	
 			<p> Below the applications list you created : </p>
 	
 			<ul>
-				<% applications.each do |appli| %>
+				<% @applications.each do |appli| %>
         	<li><%=appli.name%> : <%=appli.url%> - <a href="/applications/delete/<%=appli.name%>" method="delete">Delete</a> </li>
         <% end %>
 			</ul>
