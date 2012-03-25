@@ -4,7 +4,7 @@ require 'sinatra'
 
 set :port, 2000
 
-#enable :sessions
+enable :sessions
 
 #-----------------------
 # HELPERS
@@ -34,8 +34,15 @@ get '/protected' do
 		session[:current_user_appli] = params['login']
 	end
 	if !current_user_appli.nil?
+		@login = current_user_appli
 		erb :"protected"
 	else
-		redirect 'http://localhost:4567/appli_1/sessions/new?origine=/protected'
+		redirect 'http://localhost:4567/sessions/new/appli_1?origine=/protected'
 	end
+end
+
+
+# NOT FOUND
+not_found do
+  erb :"errors/not_found"
 end

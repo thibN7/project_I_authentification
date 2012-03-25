@@ -12,7 +12,7 @@ require 'logger'
 
 
 #use Rack::Session::Pool
-#enable :sessions
+enable :sessions
 
 #set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -215,8 +215,10 @@ post '/sessions/:appli' do
 end
 
 
-
-
+# NOT FOUND
+not_found do
+  erb :"errors/not_found"
+end
 
 
 
