@@ -111,12 +111,33 @@ describe "Client Application" do
 				get '/protected'
 				last_response.should be_redirect
 		   	follow_redirect!
-		   	last_request.url.should == 'http://localhost:4567/appli_1/sessions/new?origine=%2Fprotected'
+		   	last_request.url.should == 'http://localhost:4567/sessions/new/appli_1?origine=%2Fprotected'
 			end
 
 		end
-		
-
+	
 	end
+
+	# GET /sessions/disconnect
+	describe "get /sessions/disconnect" do
+
+		before(:each) do
+			get '/sessions/disconnect'
+		end
+	
+		it "should disconnect the user by cleaning the session" do
+			last_request.env["rack.session"][:current_user_appli].should be_nil
+		end
+
+		it "should redirect the user to the index page" do
+			last_response.should be_redirect
+			follow_redirect!
+			last_request.path.should == '/'
+		end
+	
+	end
+
+
+
 
 end

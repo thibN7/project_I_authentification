@@ -1,0 +1,13 @@
+I, [2012-03-25T17:12:22.567289 #9133]  INFO -- : s_auth connection succeeded for the logintoto
+I, [2012-03-25T17:15:41.464420 #9245]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-25T17:15:52.488402 #9245]  INFO -- : Client application appli_1connection failed for the login toto
+I, [2012-03-25T17:16:19.038700 #9245]  INFO -- : Client application appli_1connection succeeded for the login toto
+I, [2012-03-25T17:18:02.070548 #9273]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-25T17:18:11.372529 #9273]  INFO -- : s_auth connection failed for the login lol
+I, [2012-03-25T17:18:19.843842 #9273]  INFO -- : s_auth connection succeeded for the login lol
+I, [2012-03-25T17:33:02.415010 #9463]  INFO -- : Utilization of the client application appli_1 by the login lol
+I, [2012-03-25T17:33:02.576792 #9463]  INFO -- : Client application appli_1connection succeeded for the login lol
+I, [2012-03-25T17:33:19.793090 #9463]  INFO -- : Client application appli_1connection succeeded for the login lol
+I, [2012-03-25T17:33:21.903591 #9463]  INFO -- : s_auth disconnection succeeded for the loginlol
+I, [2012-03-25T17:33:25.985902 #9463]  INFO -- : s_auth connection succeeded for the login toto
+I, [2012-03-25T17:33:35.488172 #9463]  INFO -- : Client application appli_1connection succeeded for the login toto

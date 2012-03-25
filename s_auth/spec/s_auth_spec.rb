@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 
-require '../s_auth'
+require '../s_auth_2'
 require 'rack/test'
 
 describe "Application" do

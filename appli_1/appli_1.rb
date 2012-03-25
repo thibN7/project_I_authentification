@@ -15,6 +15,10 @@ helpers do
     session[:current_user_appli]
   end
 
+  def disconnect
+    session[:current_user_appli] = nil
+  end
+
 end
 
 
@@ -39,6 +43,13 @@ get '/protected' do
 	else
 		redirect 'http://localhost:4567/sessions/new/appli_1?origine=/protected'
 	end
+end
+
+
+# GET /sessions/disconnect
+get '/sessions/disconnect' do
+	disconnect
+	redirect '/'
 end
 
 
