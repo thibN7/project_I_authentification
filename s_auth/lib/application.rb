@@ -29,19 +29,32 @@ class Application < ActiveRecord::Base
 
 	end
 
+
 	#REDIRECT METHOD
-	def self.redirect(appli, origin, user)
-		if !appli.nil?
-			utilization = Utilization.new
-			utilization.application_id = appli.id
-			utilization.user_id = user.id
-			utilization.save
-			redirect = appli.url+origin+'?login='+user.login
-		else
-			redirect = '/'		
-		end
-		redirect
+	def self.redirect(appliName, origin, userLogin)
+		appli = Application.find_by_name(appliName)
+		redirection = appli.url + origin + '?login=' + userLogin
+		redirection
 	end
+
+
+	#BACK_URL METHOD
+	def self.back_url(appliName, origin)
+		appli = Application.find_by_name(appliName)
+		back_url = appli.url + origin
+		#back_url = appliName + origin
+		back_url
+
+	
+	end
+
+
+
+
+	#APPLICATION EXISTS METHOD
+	def self.exists?(appliName)
+		!self.find_by_name(appliName).nil?
+	end		
 
 
 end

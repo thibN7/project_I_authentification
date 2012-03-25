@@ -23,9 +23,13 @@ class User < ActiveRecord::Base
 		end
 	end
 
+
+
 	def self.encrypt_password(password)
     Digest::SHA1.hexdigest(password).inspect
 	end
+
+
 
 	def self.user_exists(login, password)
 		user = User.find_by_login(login)

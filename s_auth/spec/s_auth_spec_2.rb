@@ -88,7 +88,13 @@ describe "Application" do
 
 			describe "Registration not ok" do
 
-				#TODO : stuber les méthodes pour user.errors.messages
+				before(:each) do
+					@errors = double("Errors")
+					@user.stub(:errors).and_return(@errors)
+					@messages = double("Messages")
+					@errors.stub(:messages).and_return(@messages)
+					@messages.stub(:each)
+				end
 
 				it "should rerender the form" do
 					@user.stub(:valid?){false}
@@ -330,6 +336,7 @@ describe "Application" do
 				@appli = double(Application)
 				User.stub(:find_by_login){@user}
 				@user.stub(:id){12}
+				Application.stub(:create){@appli}
 			end
 
 			it "should exist a current_user" do
@@ -343,14 +350,14 @@ describe "Application" do
 			end
 
 			it "should use create" do
-				Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
+				Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
 				post '/applications', @paramsAppli, @session
 			end
 		
 			describe "Registration ok" do
 
 				it "should redirect to the user page /users/:login" do
-					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
+					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
 					@appli.should_receive(:valid?).and_return(true)
 					post '/applications', @paramsAppli, @session
 					last_response.should be_redirect
@@ -362,8 +369,17 @@ describe "Application" do
 
 			describe "Registration not ok" do
 
+				before(:each) do
+					Application.stub(:create){@appli}
+					@errors = double("Errors")
+					@appli.stub(:errors).and_return(@errors)
+					@messages = double("Messages")
+					@errors.stub(:messages).and_return(@messages)
+					@messages.stub(:each)
+				end
+
 				it "should rerender the form" do
-					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12).and_return(@appli)
+					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
 					@appli.should_receive(:valid?).and_return(false)
 					post '/applications', @paramsAppli, @session
 					last_response.should be_ok
@@ -477,6 +493,221 @@ describe "Application" do
 	# END APPLICATION
 
 	#---------------------------------------------------------------
+
+	#------------------------------------
+	# CLIENT APPLICATION AUTHENTICATION
+	#------------------------------------
+	describe "Client Application Connection" do
+
+		describe "get /sessions/new/:appli" do
+
+			it "should get /sessions/new/appli_1" do
+				#TODO : Problème mais pourquoi ?
+				get '/sessions/new/appli_1'
+				last_response.should be_ok
+				last_request.path.should == '/sessions/new/appli_1'
+			end
+
+			describe "The application appli_1 exists" do
+
+				before(:each) do
+					@params = { 'name' => 'appli1Name', 'url' => 'http://localhost:2000' }
+					#@appli = double(Application)
+					Application.stub(:exists?){true}
+				end
+
+				it "should get /appli_1/sessions/new?origine=/protected" do
+					#TODO : Probleme à cause de :
+					# @back_url = Application.back_url(params[:appli], params[:origine])
+					get '/sessions/new/appli_1?origine=/protected'
+					last_response.should be_ok
+					last_request.path.should == '/sessions/new/appli_1'
+				end
+
+				it "should exist an application named appli_1" do
+					Application.should_receive(:exists?).with("appli_1")
+					get '/sessions/new/appli_1?origine=/protected'
+				end
+
+				describe "The current_user (session) exists" do
+				
+					before(:each) do
+						@session = { "rack.session" => { :current_user => "tmorisse" } }
+					end
+
+					it "should exist a current_user" do
+						get '/sessions/new/appli_1?origine=/protected', {}, @session
+						last_request.env["rack.session"][:current_user].should == "tmorisse"
+					end
+
+					describe "Utilization of application by a user" do
+
+						describe "The user have never used this appli before" do
+
+							before(:each) do
+								Utilization.stub(:exists?){false}
+								Utilization.stub(:add)
+							end
+						
+							it "should use the exists? method" do
+								Utilization.should_receive(:exists?).with("tmorisse", "appli_1")
+								get '/sessions/new/appli_1?origine=/protected', {}, @session
+							end
+
+							it "should add the utilization of this appli into the database" do
+								Utilization.should_receive(:add).with("tmorisse", "appli_1")
+								get '/sessions/new/appli_1?origine=/protected', {}, @session
+							end
+
+						end
+
+					end
+
+					before(:each) do
+						@appli = double(Application)
+						Application.stub(:redirect){'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'}
+						Utilization.stub(:exists?){true}
+					end
+
+					it "should use the redirect method" do
+						Application.should_receive(:redirect).with('appli_1', '/protected', 'tmorisse')
+						get '/sessions/new/appli_1?origine=/protected', {}, @session
+					end
+
+					it "should redirect the user to the client application page" do
+						get '/sessions/new/appli_1?origine=/protected', {}, @session
+						last_response.should be_redirect
+            follow_redirect!
+            last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
+					end
+
+				end
+
+
+
+				describe "The current_user (session) doesn't exist" do
+					
+					before(:each) do
+						#@appli = double(Application)
+						Application.stub(:back_url){'http://localhost:2000/protected'}
+						#Application.stub(:find_by_name){@appli}
+						#@appli.stub(:url){'http://localhost:2000'}
+					end
+
+					it "should use back_url method" do
+						#Application.should_receive(:back_url).with('appli_1', '/protected')
+						get '/sessions/new/appli_1?origine=/protected'
+					end
+
+					it " should render the form to post s_auth authentication info" do
+						get '/sessions/new/appli_1?origine=/protected'
+						last_response.should be_ok
+				    last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+					end
+
+				end
+
+			end
+			
+			describe "The application appli_1 doesn't exist" do
+				#TODO
+				it "should return the user to the not found page" do
+					Application.stub(:exists?){false}
+					get '/sessions/new/appli_1?origine=/protected'
+					last_response.should be_ok
+					last_response.body.should match %r{<title>Not found</title>.*}
+				end		
+			
+			end
+
+		end
+
+		describe "post /sessions/:appli" do
+
+			describe "The user exists (authentication ok)" do
+
+				before(:each) do
+					@params = {'login' => 'tmorisse', 'password' => 'passwordThib', 'back_url' => 'http://localhost:2000/protected'}
+					User.stub(:user_exists){true}
+				end
+
+				it "should use the user_exists method and return true" do
+					User.should_receive(:user_exists).with('tmorisse', 'passwordThib')
+					post 'sessions/appli_1', @params
+				end
+
+				it "should create a session" do
+					post 'sessions/appli_1', @params
+					last_request.env["rack.session"][:current_user].should == 'tmorisse'
+				end
+
+				describe "Utilization of application by a user" do
+
+					describe "The user have never used this appli before" do
+
+						before(:each) do
+							Utilization.stub(:exists?){false}
+							Utilization.stub(:add)
+						end
+						
+						it "should use the exists? method" do
+							Utilization.should_receive(:exists?).with("tmorisse", "appli_1")
+							post 'sessions/appli_1', @params
+						end
+
+						it "should add the utilization of this appli into the database" do
+							Utilization.should_receive(:add).with("tmorisse", "appli_1")
+							post 'sessions/appli_1', @params
+						end
+
+					end
+
+				end
+
+				it "should redirect the user to the back_url" do
+					Utilization.stub(:exists?){true}
+					post 'sessions/appli_1', @params
+					last_response.should be_redirect
+				  follow_redirect!
+				  last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
+				end
+
+			end
+
+			describe "The user doesn't exist (authentication not ok)" do
+
+				before(:each) do
+					@params = {'login' => 'tmorisse', 'password' => 'passwordThib', 'back_url' => 'http://localhost:2000/protected'}
+					User.stub(:user_exists){false}
+					@user = double(User)
+					User.stub(:find_by_login){@user}
+				end
+
+				it "should use find_by_login" do
+					User.should_receive(:find_by_login).with('tmorisse')
+					post 'sessions/appli_1', @params
+				end
+
+				it "should rerender the form if the user is unknown" do
+					@user.stub(:nil?).and_return(true)
+					post 'sessions/appli_1', @params
+					last_response.should be_ok
+		    	last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+				end
+
+				it "should rerender the form if the password is wrong" do
+					@user.stub(:nil?).and_return(false)
+					post 'sessions/appli_1', @params
+					last_response.should be_ok
+		    	last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+				end
+
+			end
+
+		end
+
+	end
+	
 
 
 

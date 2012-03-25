@@ -15,8 +15,8 @@
 
 	<% if !@applications.empty?	%>
 
-		<div class="appListCreated">
-	
+		<div class="applicationsListCreated">
+
 			<p> Below the applications list you created : </p>
 	
 			<ul>
@@ -32,6 +32,27 @@
 		<p> You don't have any applications. </p>
 
 	<% end %>
+
+
+	<% if !@utilizations.empty? %>
+
+		<div class="utilizationsList">
+
+			<p> Below the list of all the applications that you have used : </p>
+
+			<ul>
+				<% @utilizations.each do |util| 
+						appli = Application.find_by_id(util.application_id) %>
+					<li><%=appli.name%> : <%=appli.url%>
+				<% end %>
+			</ul>
+
+	<% else %>
+
+		<p> You have not used any applications yet. </p>
+	
+	<% end %>
+
 
 	<p>
 	<a href="/sessions/disconnect"> Disconnect </a>

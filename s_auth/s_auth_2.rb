@@ -8,9 +8,13 @@ require 'lib/user.rb'
 
 require 'database.rb'
 
+require 'logger'
+
 
 #use Rack::Session::Pool
 #enable :sessions
+
+#set :logger , Logger.new('log/connections.txt', 'weekly')
 
 #-----------------------
 # HELPERS
@@ -52,8 +56,7 @@ post '/users' do
 	if user.valid?
 		redirect '/sessions/new'
 	else
-		#TODO : stuber user.errors.messages
-		#@registration_error = user.errors.messages
+		@registration_error = user.errors.messages
 		erb :"users/new"
 	end
 end
@@ -106,6 +109,7 @@ get '/users/:login' do
 	if current_user == params[:login]
 		user = User.find_by_login(current_user)
 		@applications = Application.where(:user_id => user.id)
+		@utilizations = Utilization.where(:user_id => user.id)
 		erb :"users/profil"
 	else
 		@error_forbidden = :current_user_match_login
@@ -135,8 +139,7 @@ post '/applications' do
 	if appli.valid?
 		redirect '/users/'+current_user
 	else
-		#TODO 
-		#@registration_error = appli.errors.messages
+		@registration_error = appli.errors.messages
 		erb :"/applications/new"
 	end
 end
@@ -166,12 +169,50 @@ get '/applications/delete/:name' do
 end
 
 
+#------------------------------------
+# CLIENT APPLICATION AUTHENTICATION
+#------------------------------------
 
+# GET 
+get '/sessions/new/:appli' do #TODO A CHANGER PAR get /sessions/new/:appli
+	if Application.exists?(params[:appli])
+		if current_user
+			if !Utilization.exists?(current_user, params[:appli])
+				Utilization.add(current_user, params[:appli])
+			end
+			redirection = Application.redirect(params[:appli], params[:origine], current_user) + '&secret=iamsauth'
+			redirect redirection 
+		else 
+			#TODO : probleme dans test à cause de methode back_url, et plus precisement appli.url a l'interieur de la methode
+      @back_url = Application.back_url(params[:appli], params[:origine])
+			erb :"sessions/new"
+		end
+	else
+		@error = :appli_client_doesnt_exist
+		erb :"errors/not_found"
+	end
+end
 
-
-
-
-
+# POST
+post '/sessions/:appli' do
+	if User.user_exists(params['login'], params['password'])
+		session[:current_user] = params['login']
+		if !Utilization.exists?(current_user, params[:appli])
+			Utilization.add(current_user, params[:appli])
+		end
+		redirect "#{params[:back_url]}?login=#{params['login']}&secret=iamsauth"
+	else
+		user = User.find_by_login(params['login'])
+		if user.nil?
+			@authentication_error = :unknown_user
+		else
+			@authentication_error = :match_password
+		end
+		@back_url = params[:back_url]
+		@login = params['login']
+		erb :"sessions/new"
+	end
+end
 
 
 
