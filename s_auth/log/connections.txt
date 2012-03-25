@@ -11,3 +11,9 @@ I, [2012-03-25T17:33:19.793090 #9463]  INFO -- : Client application appli_1conne
 I, [2012-03-25T17:33:21.903591 #9463]  INFO -- : s_auth disconnection succeeded for the loginlol
 I, [2012-03-25T17:33:25.985902 #9463]  INFO -- : s_auth connection succeeded for the login toto
 I, [2012-03-25T17:33:35.488172 #9463]  INFO -- : Client application appli_1connection succeeded for the login toto
+I, [2012-03-25T19:22:13.522833 #11598]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-25T19:22:58.675505 #11598]  INFO -- : Client application appli_1 connection failed for the login jij
+I, [2012-03-25T19:23:18.560177 #11598]  INFO -- : Client application appli_1 connection succeeded for the login toto
+I, [2012-03-25T19:24:54.686871 #11598]  INFO -- : s_auth connection succeeded for the login tata
+I, [2012-03-25T19:25:03.481669 #11598]  INFO -- : Client application appli_1connection succeeded for the login tata
+I, [2012-03-25T19:25:29.581785 #11598]  INFO -- : s_auth disconnection succeeded for the logintata

@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 
-require '../s_auth_2'
+require '../s_auth'
 require 'rack/test'
 
 describe "Application" do
@@ -205,7 +205,8 @@ describe "Application" do
 	describe "User disconnection" do
 		
 		before(:each) do
-			get '/sessions/disconnect'
+			@session = { "rack.session" => { :current_user => "tmorisse" } }
+			get '/sessions/disconnect', {}, @session
 		end
 
 		it "should disconnect the user by cleaning the session" do
@@ -501,9 +502,8 @@ describe "Application" do
 
 		describe "get /sessions/new/:appli" do
 
-			it "should get /sessions/new/appli_1" do
-				#TODO : Problème mais pourquoi ?
-				get '/sessions/new/appli_1'
+			it "should get /sessions/new/appli_1?origine=/protected" do
+				get '/sessions/new/appli_1?origine=/protected'
 				last_response.should be_ok
 				last_request.path.should == '/sessions/new/appli_1'
 			end
@@ -512,16 +512,7 @@ describe "Application" do
 
 				before(:each) do
 					@params = { 'name' => 'appli1Name', 'url' => 'http://localhost:2000' }
-					#@appli = double(Application)
 					Application.stub(:exists?){true}
-				end
-
-				it "should get /appli_1/sessions/new?origine=/protected" do
-					#TODO : Probleme à cause de :
-					# @back_url = Application.back_url(params[:appli], params[:origine])
-					get '/sessions/new/appli_1?origine=/protected'
-					last_response.should be_ok
-					last_request.path.should == '/sessions/new/appli_1'
 				end
 
 				it "should exist an application named appli_1" do
@@ -583,19 +574,14 @@ describe "Application" do
 
 				end
 
-
-
 				describe "The current_user (session) doesn't exist" do
 					
 					before(:each) do
-						#@appli = double(Application)
 						Application.stub(:back_url){'http://localhost:2000/protected'}
-						#Application.stub(:find_by_name){@appli}
-						#@appli.stub(:url){'http://localhost:2000'}
 					end
 
 					it "should use back_url method" do
-						#Application.should_receive(:back_url).with('appli_1', '/protected')
+						Application.should_receive(:back_url).with('appli_1', '/protected')
 						get '/sessions/new/appli_1?origine=/protected'
 					end
 
@@ -610,7 +596,7 @@ describe "Application" do
 			end
 			
 			describe "The application appli_1 doesn't exist" do
-				#TODO
+
 				it "should return the user to the not found page" do
 					Application.stub(:exists?){false}
 					get '/sessions/new/appli_1?origine=/protected'

@@ -12,7 +12,7 @@ require 'logger'
 
 
 #use Rack::Session::Pool
-enable :sessions
+#enable :sessions
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -177,7 +177,7 @@ end
 #------------------------------------
 
 # GET 
-get '/sessions/new/:appli' do #TODO A CHANGER PAR get /sessions/new/:appli
+get '/sessions/new/:appli' do
 	if Application.exists?(params[:appli])
 		if current_user
 			if !Utilization.exists?(current_user, params[:appli])
@@ -188,7 +188,6 @@ get '/sessions/new/:appli' do #TODO A CHANGER PAR get /sessions/new/:appli
 			redirection = Application.redirect(params[:appli], params[:origine], current_user) + '&secret=iamsauth'
 			redirect redirection 
 		else 
-			#TODO : probleme dans test à cause de methode back_url, et plus precisement appli.url a l'interieur de la methode
       @back_url = Application.back_url(params[:appli], params[:origine])
 			erb :"sessions/new"
 		end
