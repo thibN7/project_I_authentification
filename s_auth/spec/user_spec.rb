@@ -6,10 +6,14 @@ describe User do
 
 	before(:each) do
 		User.all.each{|user| user.destroy}
+		Application.all.each{|appli| appli.destroy}
+		Utilization.all.each{|util| util.destroy}
 	end
 
 	after(:each) do
 		User.all.each{|user| user.destroy}
+		Application.all.each{|appli| appli.destroy}
+		Utilization.all.each{|util| util.destroy}
 	end
 
 
@@ -33,7 +37,7 @@ describe User do
 	#-----------------------------
 	# VALID? METHOD
 	#-----------------------------
-  describe "Valid?" do
+  describe "Valid? method" do
 
     it "should not be valid without a password" do
       subject.login = "Thibault"
@@ -76,7 +80,7 @@ describe User do
 	#-----------------------------
 	# FIND BY LOGIN METHOD
 	#-----------------------------
-  describe "Find by login" do
+  describe "Find by login method" do
 
 		describe "The login exists" do
 
@@ -132,6 +136,8 @@ describe User do
 	#----------------------
 	describe "User Authentication" do
 
+		#TODO : Stub à virer car on travaille sur la BDD !
+
 		before (:each) do
 			subject.login = "Thib"
 			subject.save
@@ -147,7 +153,7 @@ describe User do
 
 			it "should know the user" do
 				User.should_receive(:find_by_login).with("Thib").and_return(subject)
-				User.user_exists("Thib", "foo").should be_true
+				User.exists?("Thib", "foo").should be_true
 			end
 
 		end
@@ -156,19 +162,54 @@ describe User do
 
 			it "should not know the user because of wrong password" do
 				User.should_receive(:find_by_login).with("Thib").and_return(@user)
-				User.user_exists("Thib", "toto").should be_false
+				User.exists?("Thib", "toto").should be_false
 			end
 
 			it "should not know the user because of wrong login" do
 				User.should_receive(:find_by_login).with("ThibThib").and_return(@user)
-				User.user_exists("ThibThib", "foo").should be_false
+				User.exists?("ThibThib", "foo").should be_false
 			end
 
 		end
 
+	end
 
+	
+	#----------------------
+	# USER SUPPRESSION
+	#----------------------
+	describe "User Suppression method" do
 
-end
+		it "should delete the user, all the applications he has created, and the list of the utilizations of applications" do
+
+			paramsUser = { 'login' => 'tmorisse', 'password' => 'passwordThib' }
+			user = User.create(paramsUser)
+
+			paramsAppli1 = { 'name' => 'appli_1', 'url' => 'http://localhost:2000', 'user_id' => user.id }
+			appli_1 = Application.create(paramsAppli1)
+
+			paramsAppli2 = { 'name' => 'appli_2', 'url' => 'http://localhost:2001', 'user_id' => user.id }
+			appli_2 = Application.create(paramsAppli2)
+
+			paramsUtilizations = { 'user_id' => user.id, 'application_id' => appli_1.id }
+			Utilization.create(paramsUtilizations)
+
+			User.find_by_login('tmorisse').should_not be_nil			
+			Application.find_by_name('appli_1').should_not be_nil
+			Application.find_by_name('appli_2').should_not be_nil
+			Utilization.find_by_user_id(user.id).should_not be_nil
+
+			User.delete(user)
+
+			Utilization.find_by_user_id(user.id).should be_nil
+			Application.find_by_name('appli_1').should be_nil
+			Application.find_by_name('appli_2').should be_nil
+			User.find_by_login('tmorisse').should be_nil			
+
+		end
+
+	end
+		
 
 	
 

@@ -38,3 +38,26 @@ I, [2012-03-26T19:16:15.149728 #3272]  INFO -- : s_auth disconnection succeeded 
 I, [2012-03-26T19:16:18.823470 #3272]  INFO -- : s_auth connection succeeded for the login admin
 I, [2012-03-26T19:17:15.861980 #3272]  INFO -- : Utilization of the client application appli_1 by the login admin
 I, [2012-03-26T19:17:16.030481 #3272]  INFO -- : Client application appli_1connection succeeded for the login admin
+I, [2012-03-26T22:38:34.899567 #4485]  INFO -- : s_auth connection succeeded for the login toto
+I, [2012-03-26T22:39:07.469287 #4497]  INFO -- : s_auth disconnection succeeded for the loginadmin
+I, [2012-03-26T22:39:17.507288 #4497]  INFO -- : s_auth connection failed for the login admin
+I, [2012-03-26T22:39:32.848413 #4497]  INFO -- : s_auth connection succeeded for the login admin
+I, [2012-03-26T22:39:50.174451 #4497]  INFO -- : s_auth disconnection succeeded for the loginadmin
+I, [2012-03-26T22:39:55.151342 #4497]  INFO -- : s_auth connection failed for the login toto
+I, [2012-03-26T22:40:04.883192 #4497]  INFO -- : s_auth connection succeeded for the login toto
+I, [2012-03-26T22:41:04.059047 #4497]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-26T22:41:12.284763 #4497]  INFO -- : s_auth connection succeeded for the login admin
+I, [2012-03-26T22:41:33.018027 #4497]  INFO -- : s_auth disconnection succeeded for the loginadmin
+I, [2012-03-26T22:41:40.441741 #4497]  INFO -- : s_auth connection succeeded for the login toto
+I, [2012-03-26T22:41:46.073722 #4497]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-26T22:43:43.930631 #4510]  INFO -- : s_auth connection succeeded for the login admin
+I, [2012-03-26T22:47:26.952096 #4533]  INFO -- : s_auth disconnection succeeded for the loginadmin
+I, [2012-03-26T22:47:38.560081 #4533]  INFO -- : s_auth connection succeeded for the login admin
+I, [2012-03-26T22:48:45.101589 #4533]  INFO -- : s_auth disconnection succeeded for the loginadmin
+I, [2012-03-26T22:48:49.920478 #4533]  INFO -- : s_auth connection succeeded for the login toto
+I, [2012-03-26T22:49:52.633319 #4533]  INFO -- : Utilization of the client application appli_1 by the login toto
+I, [2012-03-26T22:49:52.778624 #4533]  INFO -- : Client application appli_1connection succeeded for the login toto
+I, [2012-03-26T22:49:59.192511 #4533]  INFO -- : s_auth disconnection succeeded for the logintoto
+I, [2012-03-26T22:50:06.677633 #4533]  INFO -- : s_auth connection succeeded for the login admin
+I, [2012-03-26T22:50:11.931170 #4533]  INFO -- : Utilization of the client application appli_1 by the login admin
+I, [2012-03-26T22:50:12.126673 #4533]  INFO -- : Client application appli_1connection succeeded for the login admin

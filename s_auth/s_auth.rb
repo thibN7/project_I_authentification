@@ -12,7 +12,7 @@ require 'logger'
 
 
 #use Rack::Session::Pool
-enable :sessions
+#enable :sessions
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -74,7 +74,7 @@ end
 # POST
 post '/sessions' do
 	user = User.find_by_login(params['login'])
-	if User.user_exists(params['login'],params['password'])
+	if User.exists?(params['login'],params['password'])
 		settings.logger.info("s_auth connection succeeded for the login " + params['login'])
 		session[:current_user] = params['login']
 		redirect '/'
@@ -122,6 +122,27 @@ get '/users/:login' do
 		erb :"errors/forbidden"
 	end
 end
+
+
+#------------------------
+# USER SUPPRESSION
+#------------------------
+delete '/users/:login' do
+	if current_user == "admin"
+		user = User.find_by_login(params[:login])
+		if user
+			User.delete(user)
+			redirect '/users/admin'
+		else
+			@error = :client_doesnt_exist
+			erb :"errors/not_found"
+		end
+	else
+		@error_forbidden = :user_not_admin
+		erb :"errors/forbidden"
+	end
+end
+
 
 
 #----------------------------
@@ -202,7 +223,7 @@ end
 
 # POST
 post '/sessions/:appli' do
-	if User.user_exists(params['login'], params['password'])
+	if User.exists?(params['login'], params['password'])
 		session[:current_user] = params['login']
 		if !Utilization.exists?(current_user, params[:appli])
 			settings.logger.info("Utilization of the client application" + params[:appli] + " by the login " + current_user)

@@ -21,7 +21,11 @@
 					<% @users.each do |user| %>
 						<% if user.login != "admin" %>
 							<li>
-								<%=user.login%>
+								<form action="/users/<%= user.login %>" method="post"> 
+								<%=user.login%> - 
+								<input name="commit" type="submit" value="Delete <%=user.login%>" />
+								<input name="_method" type="hidden" value="delete" />
+								</form>
 							</li>
 						<% end %>
 					<% end %>

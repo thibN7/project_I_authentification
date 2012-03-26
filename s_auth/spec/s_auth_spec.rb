@@ -146,10 +146,10 @@ describe "Application" do
 			describe "Authentication ok" do
 
 				before(:each) do
-					User.should_receive(:user_exists).with('tmorisse', 'passwordThib').and_return(true)
+					User.should_receive(:exists?).with('tmorisse', 'passwordThib').and_return(true)
 				end
 				
-				it "should use the user_exists method" do
+				it "should use the exists? method" do
 					post '/sessions', @params
 				end
 
@@ -172,7 +172,7 @@ describe "Application" do
 
 				before(:each) do
 					@user = double(User)
-					User.should_receive(:user_exists).with('tmorisse', 'passwordThib').and_return(false)
+					User.should_receive(:exists?).with('tmorisse', 'passwordThib').and_return(false)
 				end
 
 				it "should rerender the form if the user is unknown" do
@@ -273,7 +273,7 @@ describe "Application" do
 
 			describe "The login and the current_user are not the same" do
 
-				it "should redirect the user to the forbidden page" do
+				it "should return the user to the forbidden page" do
 					get '/users/toto', {}, @session
 					last_response.should be_ok
 				  last_response.body.should match %r{<title>Forbidden</title>.*}
@@ -285,6 +285,81 @@ describe "Application" do
 
 	end
 	# END USER PAGES
+
+	
+	#-------------------------
+	# USER SUPPRESSION
+	#-------------------------
+	describe "User suppression" do
+
+		describe "delete /users/:login" do
+
+			describe "The current_user is the admin" do
+
+				before(:each) do
+					@user = double(User)
+					@session = { "rack.session" => { :current_user => "admin" } }
+				end
+
+				it "should exists a current_user (session)" do
+					delete '/users/tmorisse', {}, @session
+					last_request.env["rack.session"][:current_user].should == "admin"
+				end
+
+				it "should use find_by_login method" do
+					User.should_receive(:find_by_login).with('tmorisse')
+					delete '/users/tmorisse', {}, @session
+				end
+
+				describe "The user to delete exists" do
+
+					before(:each) do
+						User.stub(:find_by_login){@user}
+						User.stub(:delete){@user}
+					end
+
+					it "should delete the user, all the applications he has created, and the list of the utilizations of applications" do
+						User.should_receive(:delete).with(@user)
+						delete '/users/tmorisse', {}, @session
+					end
+
+					it "should redirect to the admin profile page" do
+						delete '/users/tmorisse', {}, @session
+						last_response.should be_redirect
+						follow_redirect!
+						last_request.path.should == '/users/admin'
+					end
+
+				end
+
+				describe "The user to delete doesn't exist" do
+	
+					it "should return the admin to the not_found page" do
+						User.stub(:find_by_login){nil}
+						delete '/users/tmorisse', {}, @session
+						last_response.should be_ok
+					  last_response.body.should match %r{<title>Not found</title>.*}
+					end
+
+				end
+			
+			end
+			
+			describe "The current_user is not the admin" do
+
+				it "should return the current_user to the forbidden page" do
+					@session = { "rack.session" => { :current_user => "tmorisse" } }
+					delete '/users/tmorisse', {}, @session
+					last_response.should be_ok
+				  last_response.body.should match %r{<title>Forbidden</title>.*}
+				end
+
+			end
+
+		end
+
+	end
+
 
 	#-------------------------
 	# APPLICATION
@@ -614,11 +689,11 @@ describe "Application" do
 
 				before(:each) do
 					@params = {'login' => 'tmorisse', 'password' => 'passwordThib', 'back_url' => 'http://localhost:2000/protected'}
-					User.stub(:user_exists){true}
+					User.stub(:exists?){true}
 				end
 
-				it "should use the user_exists method and return true" do
-					User.should_receive(:user_exists).with('tmorisse', 'passwordThib')
+				it "should use the exists? method and return true" do
+					User.should_receive(:exists?).with('tmorisse', 'passwordThib')
 					post 'sessions/appli_1', @params
 				end
 
@@ -664,7 +739,7 @@ describe "Application" do
 
 				before(:each) do
 					@params = {'login' => 'tmorisse', 'password' => 'passwordThib', 'back_url' => 'http://localhost:2000/protected'}
-					User.stub(:user_exists){false}
+					User.stub(:exists?){false}
 					@user = double(User)
 					User.stub(:find_by_login){@user}
 				end

@@ -15,6 +15,10 @@
 
 		<p> You cannot access this application : it does not exist. </p>
 
+	<% elsif @error == :client_doesnt_exist %>
+
+		<p> You cannot delete this user : it does not exist. </p>
+
 	<% end %>
  
 </body>

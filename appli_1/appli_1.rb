@@ -4,7 +4,7 @@ require 'sinatra'
 
 set :port, 2000
 
-enable :sessions
+#enable :sessions
 
 #-----------------------
 # HELPERS

@@ -19,6 +19,10 @@
 
 		<p> You cannot delete this application : you are not the owner of it. </p>
 
+	<% elsif @error_forbidden == :user_not_admin %>
+
+		<p> You cannot delete this user : you are not the admin of the authentication service. </p>
+
 	<% end %>
 
  
