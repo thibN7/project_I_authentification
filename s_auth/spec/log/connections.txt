@@ -239,3 +239,81 @@ I, [2012-03-25T21:38:34.033205 #13049]  INFO -- : Client application appli_1 con
 I, [2012-03-25T21:38:34.034571 #13049]  INFO -- : Client application appli_1 connection failed for the login tmorisse
 I, [2012-03-25T21:38:34.037753 #13049]  INFO -- : Client application appli_1 connection failed for the login tmorisse
 I, [2012-03-25T21:38:34.043290 #13049]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T18:56:52.744604 #2907]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:52.759238 #2907]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:52.761905 #2907]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:52.770212 #2907]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T18:56:52.776269 #2907]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T18:56:52.780568 #2907]  INFO -- : s_auth disconnection succeeded for the logintmorisse
+I, [2012-03-26T18:56:52.781268 #2907]  INFO -- : s_auth disconnection succeeded for the logintmorisse
+I, [2012-03-26T18:56:53.287134 #2907]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.288854 #2907]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.290357 #2907]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.294150 #2907]  INFO -- : Utilization of the client application appli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.294290 #2907]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.296068 #2907]  INFO -- : Utilization of the client application appli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.296220 #2907]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.328929 #2907]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.361826 #2907]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.425774 #2907]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.430177 #2907]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.430307 #2907]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.431898 #2907]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T18:56:53.432009 #2907]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T18:56:53.433437 #2907]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T18:56:53.436094 #2907]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T18:56:53.438829 #2907]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:04:44.471348 #2946]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.472638 #2946]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.473816 #2946]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.477365 #2946]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:04:44.480246 #2946]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:04:44.483207 #2946]  INFO -- : s_auth disconnection succeeded for the logintmorisse
+I, [2012-03-26T19:04:44.484074 #2946]  INFO -- : s_auth disconnection succeeded for the logintmorisse
+I, [2012-03-26T19:04:44.920842 #2946]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.922522 #2946]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.924059 #2946]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.927833 #2946]  INFO -- : Utilization of the client application appli_1 by the login tmorisse
+I, [2012-03-26T19:04:44.927985 #2946]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.929634 #2946]  INFO -- : Utilization of the client application appli_1 by the login tmorisse
+I, [2012-03-26T19:04:44.929737 #2946]  INFO -- : Client application appli_1connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:44.963404 #2946]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:04:44.995304 #2946]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:04:45.058746 #2946]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:45.063223 #2946]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:04:45.063347 #2946]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:45.064990 #2946]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:04:45.065102 #2946]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:04:45.066541 #2946]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:04:45.069313 #2946]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:04:45.072022 #2946]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:13:10.312902 #3244]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:10.314766 #3244]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:10.316447 #3244]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:10.321049 #3244]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:13:10.324631 #3244]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:13:10.977388 #3244]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:13:11.034997 #3244]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:13:11.067380 #3244]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:11.072505 #3244]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:13:11.072623 #3244]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:11.074752 #3244]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:13:11.074882 #3244]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:13:11.076817 #3244]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:13:11.080007 #3244]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:13:11.083125 #3244]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:15:18.894193 #3266]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:18.896108 #3266]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:18.897752 #3266]  INFO -- : s_auth connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:18.902320 #3266]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:15:18.906077 #3266]  INFO -- : s_auth connection failed for the login tmorisse
+I, [2012-03-26T19:15:19.591681 #3266]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:15:19.648790 #3266]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:15:19.681789 #3266]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:19.686900 #3266]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:15:19.687023 #3266]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:19.688980 #3266]  INFO -- : Utilization of the client applicationappli_1 by the login tmorisse
+I, [2012-03-26T19:15:19.689094 #3266]  INFO -- : Client application appli_1 connection succeeded for the login tmorisse
+I, [2012-03-26T19:15:19.691126 #3266]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:15:19.694796 #3266]  INFO -- : Client application appli_1 connection failed for the login tmorisse
+I, [2012-03-26T19:15:19.698192 #3266]  INFO -- : Client application appli_1 connection failed for the login tmorisse

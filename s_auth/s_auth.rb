@@ -12,7 +12,7 @@ require 'logger'
 
 
 #use Rack::Session::Pool
-#enable :sessions
+enable :sessions
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -110,6 +110,9 @@ end
 # GET
 get '/users/:login' do
 	if current_user == params[:login]
+		if current_user == "admin"
+			@users = User.all
+		end
 		user = User.find_by_login(current_user)
 		@applications = Application.where(:user_id => user.id)
 		@utilizations = Utilization.where(:user_id => user.id)

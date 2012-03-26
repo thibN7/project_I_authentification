@@ -7,8 +7,36 @@
 
 <h1>User Profile</h1>
         
-<p>Bonjour <%= current_user %> </p>
+<p>Hi <%= current_user %> </p>
             
+	<% if @users %>
+
+		<% if @users.count > 1 %>
+
+			<div class="usersList">
+
+				<p> Below the list of all the users registered in the authentication service : </p>
+
+				<ul>
+					<% @users.each do |user| %>
+						<% if user.login != "admin" %>
+							<li>
+								<%=user.login%>
+							</li>
+						<% end %>
+					<% end %>
+				</ul>
+
+			</div>
+
+		<% else %>
+
+			<p> No user is registered to the authentication service yet. </p>
+
+		<% end %>
+
+	<% end %>
+
 	<p>
 	<a href="/applications/new"> Create an application</a>
 	</p>
@@ -29,7 +57,7 @@
 
 	<% else %>
 
-		<p> You don't have any applications. </p>
+		<p> You have not created any applications yet. </p>
 
 	<% end %>
 
