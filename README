@@ -1,1 +1,185 @@
-test thibault
+###########################################################################
+#			MORISSE Thibault												2A - Info & Réseaux
+#												Applications Internet
+#												Projet - Partie I - Authentification
+#
+###########################################################################
+
+###########################################################################
+# VERIFICATION ET LANCEMENT DES TESTS
+###########################################################################
+
+Afin de lancer l'exécution des tests, veuillez suivre les étapes suivantes :
+
+1 - Tests propres au service d'authentification (111 tests) :
+	
+	--> Se positionner à la racine du projet, c'est-à-dire dans le dossier project_I_authentification
+	--> Aller dans le dossier spec en tapant : cd /s_auth/spec
+	--> 2 choix s'offrent à vous :
+		--> Lancer directement tous les tests en tapant : rspec * (ou alors rspec * --format documentation selon vos souhaits)
+		--> Lancer chaque test un à un :
+			--> rspec s_auth_spec.rb (67 tests)
+			--> rspec application_spec.rb (20 tests)
+			--> rspec user_spec.rb (18 tests)
+			--> rspec utilization_spec.rb (6 tests)
+
+2 - Tests propres à l'application cliente 1 (14 tests) :
+
+	--> Se positionner à la racine du projet
+	--> Aller dans le dossier spec en tapant : cd /appli_1/spec
+	--> Lancer le seul fichier présent (14 tests) :
+		--> Soit en tapant : rspec * (ou alors rspec * --format documentation)
+		--> Soit en tapant : rspec appli_1_spec.rb
+
+
+2 - Tests propres à l'application cliente 2 :
+
+	--> Se positionner à la racine du projet
+	--> Aller dans le dossier spec en tapant : cd /appli_2/spec
+	--> Lancer le seul fichier présent :
+		--> Soit en tapant : rspec * (ou alors rspec * --format documentation)
+		--> Soit en tapant : rspec appli_2_spec.rb
+
+
+ATTENTION ! Lancer les tests vident toute la base de données, ce qui est nécessaire pour la suite de l'utilisation du service d'authentification (Etant donné qu'il n'existe pas de base de données de test...)
+
+
+###########################################################################
+# UTILISATION DU SERVICE D'AUTHENTIFICATION ET DES APPLICATIONS CLIENTES
+###########################################################################
+
+RAPPEL : Les tests doivent avoir été effectués afin de vider la BDD.
+
+--------------------------------------------
+1 - Lancement des serveurs
+--------------------------------------------
+
+Dans le but d'utiliser le service d'authentification ainsi que les 2 applications clientes y étant liées, il faut commencer par ouvrir 3 terminaux, afin de lancer les 3 codes Ruby nécessaires au fonctionnement du dit service.
+
+	--> Dans les 3 terminaux, commencer par se positionner à la racine du projet.
+	
+		--> Lancement du s_auth (service d'authentification) dans le terminal 1
+			--> Aller dans le dossier /s_auth : cd /s_auth
+			--> Lancer le service en tapant : ruby s_auth.rb
+			--> L'adresse du serveur est : http://localhost:4567
+
+		--> Lancement de appli_1 (application cliente 1) dans le terminal 2
+			--> Aller dans le dossier /appli_1 : cd /appli_1
+			--> Lancer le service en tapant : ruby appli_1.rb
+			--> L'adresse du serveur est : http://localhost:2000
+
+		--> Lancement de appli_2 (application cliente 2) dans le terminal 3
+			--> Aller dans le dossier /appli_2 : cd /appli_2
+			--> Lancer le service en tapant : ruby appli_2.rb
+			--> L'adresse du serveur est : http://localhost:3000
+
+
+--------------------------------------------
+2 - Enregistrement d'un utilisateur
+--------------------------------------------
+
+Deux types d'utilisateurs peuvent être enregistrés :
+	--> Un administrateur du service d'authentification
+		--> Peut supprimer des utilisateurs lamda
+	--> Des utilisateurs lambda du service d'authentification
+
+
+La base de données étant vide, à vous de créer autant d'utilisateur que vous voulez.
+
+Le login à donner pour la fonction d'administrateur est : admin. Le mot de passe peut être ce que vous voulez.
+
+Pour un utilisateur lambda, vous pouvez mettre ce que vous voulez comme login (taille du login comprise entre 4 et 20 caractères et doit seulement comporter des chiffres et des lettres) et mot de passe.
+
+Pour ce faire, lancer un navigateur et aller sur l'adresse suivante : http://localhost:4567 afin d'aller sur le service d'authentification.
+	--> Cliquer ensuite sur le lien "Register"
+	--> Renseigner login et mot de passe
+	--> Cliquer sur "Subscribe"
+
+
+--------------------------------------------
+2 - Authentification d'un utilisateur
+--------------------------------------------
+
+Une fois enregistré, vous serez directement redirigé vers la page d'authentification.
+	--> Remplissez alors de nouveau les mêmes informations que vous venez d'enregistrer
+	--> Cliquer sur "Log-in"
+
+Si vous étiez déjà inscrit, vous pouvez directement accéder à cette page en cliquant sur le lien "Connect" de la page principale (http://localhost:4567)
+
+
+--------------------------------------------
+3 - Accès au profil de l'utilisateur
+--------------------------------------------
+
+Que vous soyez admin ou utilisateur lambda, vous aurez accès à la même page de profil, mis à part qu'un admin a une fonction qu'un utilisateur lambda n'a pas : la suppression d'un utilisateur lamda.
+
+Pour accéder à cette page, une fois identifié, il vous suffit de cliquer sur le lien "Your profile" qui se présente à vous.
+
+Vous aurez alors accès à votre espace privé :
+	--> Vous aurez accès à la liste des applications clientes que vous aurez créé
+	--> Vous aurez également accès à la liste des applications cliente que vous aurez utilisé
+	--> Il vous sera également possible de supprimer une application cliente que vous auriez au préalable créé.
+
+
+
+
+
+--------------------------------------------
+4 - Accès à l'application cliente 1
+--------------------------------------------
+
+Afin d'accéder à l'application cliente 1, il faut au préalable qu'elle ait été créée. 
+
+Pour ce faire, créez un utilisateur de votre choix, et créez une application cliente :
+	--> Le nom doit être : "appli_1"
+	--> L'url doit être : "http://localhost:2000"
+
+Ensuite, rendez-vous sur ladresse suivante : http://localhost:2000
+
+Afin d'accéder à l'espace protégé de l'application, cliquez sur le lien "Go to the protected page" qui s'offre à vous.
+Si vous ne vous êtes pas déconnecté du service d'authentification, vous aurez directement accès à la zone protégée de l'application cliente. Sinon, vous serez redirigé vers la page d'authentification du service d'authentification. Logguez-vous avec le compte créé précedemment si jamais c'était le cas.
+
+
+--------------------------------------------
+4Bis - Accès à l'application cliente 2
+--------------------------------------------
+
+Inutile de refaire un paragraphe pour l'utilisation de l'application cliente 2, vu que la marche à suivre est la même que pour l'application cliente 1. Par contre, au niveau du nom et de l'url, on doit renseigner ceci lors de l'enregistrement de l'appli cliente :
+	--> Nom : "appli_2"
+	--> Url : "http://localhost:3000"
+
+Si l'application cliente n'est pas créé, vous pourrez tout de même accéder à la page publique de l'application, dans notre cas l'adresse "http://localhost:3000", mais bien évidemment pas à la page privée.
+
+--------------------------------------------
+5 - Accès à des pages inexistantes
+--------------------------------------------
+
+Si vous essayer d'accéder à des pages inexistantes, vous serez automatiquement redirigés vers une page "Not found".
+
+
+
+
+--------------------------------------------
+PETITES PRECISIONS
+--------------------------------------------
+
+Je souhaiterais apporter quelques petites précisions quant à l'utilisation de mon service d'authentification.
+
+Nous pouvons être connecté à une application cliente avec un certain compte, mais être connecté au service d'authentification avec un autre compte.
+En effet, lorsque nous souhaitons accéder à la zone protégée de l'appli cliente et que nous ne sommes pas encore connecté, l'appli cliente va checker le compte auquel nous sommes connecté sur le service d'authentification, afin de nous connecter sur l'appli cliente. Une fois ceci fait, nous sommes alors connecté à l'appli cliente grâce au compte X du s_auth. Tant que nous ne nous déconnectons pas de l'appli cliente, nous serons toujours connecté à l'aide de ce compte X.
+Donc si on souhaite se connecter sur le s_auth avec un compte Y, cela est totalement possible, mais ne changera pas le compte utilisé par l'appli cliente, tant qu'on ne se déconnecte pas de cette-ci.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

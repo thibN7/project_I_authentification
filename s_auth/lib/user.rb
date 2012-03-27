@@ -11,7 +11,8 @@ class User < ActiveRecord::Base
   # Validators
   validates :login, :presence => true
   validates :login, :uniqueness => true
-
+	validates :login, :format => { :with => /^[a-z0-9]{4,20}$/i, :on => :create }
+	
 	validates :password, :presence => true
 
 	# Password

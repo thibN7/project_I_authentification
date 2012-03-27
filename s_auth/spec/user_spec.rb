@@ -39,41 +39,62 @@ describe User do
 	#-----------------------------
   describe "Valid? method" do
 
-    it "should not be valid without a password" do
-      subject.login = "Thibault"
-      subject.valid?.should be_false
-    end
+		describe "The user is valid" do
+			
+			it "should have a valid user" do
+				subject.login = "Thibault"
+				subject.password = "pwdThib"
+				subject.valid?.should be_true
+			end
 
-		it "should not be valid with an empty password" do
-			subject.login = "Thibault"
-			subject.password = ""
-      subject.valid?.should be_false
 		end
+
+		describe "The user is not valid" do
+
+			it "should not be valid without a password" do
+		    subject.login = "Thibault"
+		    subject.valid?.should be_false
+		  end
+
+			it "should not be valid with an empty password" do
+				subject.login = "Thibault"
+				subject.password = ""
+		    subject.valid?.should be_false
+			end
+		  
+		  it "should not be valid without a login" do
+		    subject.password = "MotDePasse"
+		    subject.valid?.should be_false        
+		  end
+
+			it "should not be valid with a login less than 4 characters" do
+				subject.login = "lol"
+				subject.valid?.should be_false
+			end
+
+			it "should not be valid with an empty login" do
+				subject.login = ""
+				subject.password = "MotDePasse"
+		    subject.valid?.should be_false
+			end
+
+		  it "should not be valid without a login and a password" do
+		    subject.valid?.should be_false  
+		  end
+
+		  it "should not be valid with two identical logins" do
+		    subject.login = "Thib"
+		    subject.password = "pass1"
+		    subject.save
+		    user1 = User.new
+		    user1.login = "Thib"
+		    user1.password = "pass1"
+		    user1.valid?.should be_false
+		  end
+
+		end
+
     
-    it "should not be valid without a login" do
-      subject.password = "MotDePasse"
-      subject.valid?.should be_false        
-    end
-
-		it "should not be valid with an empty login" do
-			subject.login = ""
-			subject.password = "MotDePasse"
-      subject.valid?.should be_false
-		end
-
-    it "should not be valid without a login and a password" do
-      subject.valid?.should be_false  
-    end
-
-    it "should not be valid with two identical logins" do
-      subject.login = "Thib"
-      subject.password = "pass1"
-      subject.save
-      user1 = User.new
-      user1.login = "Thib"
-      user1.password = "pass1"
-      user1.valid?.should be_false
-    end
     
   end 
 	

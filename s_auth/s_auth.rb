@@ -5,7 +5,7 @@ require 'lib/user.rb'
 require 'database.rb'
 require 'logger'
 
-#use Rack::Session::Cookie, :key => 'rack.session.s_auth', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
+use Rack::Session::Cookie, :key => 'rack.session.s_auth', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -207,7 +207,7 @@ get '/sessions/new/:appli' do
 				settings.logger.info("Utilization of the client application " + params[:appli] + " by the login " + current_user)
 				Utilization.add(current_user, params[:appli])
 			end
-			settings.logger.info("Client application " + params[:appli] + "connection succeeded for the login " + current_user)
+			settings.logger.info("Client application " + params[:appli] + " connection succeeded for the login " + current_user)
 			redirection = Application.redirect(params[:appli], params[:origine], current_user) + '&secret=iamsauth'
 			redirect redirection 
 		else 
