@@ -1,18 +1,11 @@
-# encoding: UTF-8
-
 $: << File.join(File.dirname(__FILE__))
 
 require 'sinatra'
-
 require 'lib/user.rb'
-
 require 'database.rb'
-
 require 'logger'
 
-
-#use Rack::Session::Pool
-#enable :sessions
+#use Rack::Session::Cookie, :key => 'rack.session.s_auth', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -30,6 +23,17 @@ helpers do
   end
 
 end
+
+#-----------------------
+# BEFORE
+#-----------------------
+
+before '/applications/new' do
+	redirect '/sessions/new' if !current_user
+end
+
+
+
 
 #-----------------------
 # INDEX PAGE
@@ -151,12 +155,7 @@ end
 
 # GET NEW
 get '/applications/new' do
-	if current_user 
-		erb :"applications/new"
-	else
-		@error_forbidden = :current_user_nil
-		erb :"errors/forbidden"
-	end
+	erb :"applications/new"
 end
 
 # POST
@@ -172,7 +171,7 @@ post '/applications' do
 end
 
 #GET DELETE
-get '/applications/delete/:name' do
+delete '/applications/:name' do
 	if current_user
 		appli = Application.find_by_name(params[:name])
 		if !appli.nil?

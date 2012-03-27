@@ -11,9 +11,12 @@ class Application < ActiveRecord::Base
 
   validates :url, :presence => true
   validates :url, :uniqueness => true
+	validates :url, :format => { :with => /^http?:\/\/[a-z0-9._\/-]+/i, :on => :create }
 
 	validates :user_id, :presence => true
 	validates :user_id, :numericality => true
+
+
 
 	#DELETE METHOD
 	def self.delete(appli)

@@ -4,7 +4,7 @@ require 'sinatra'
 
 set :port, 2000
 
-#enable :sessions
+#use Rack::Session::Cookie, :key => 'rack.session.s_auth_appli_1', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
 
 #-----------------------
 # HELPERS

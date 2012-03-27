@@ -64,6 +64,13 @@ describe Application do
 			subject.valid?.should be_false
 		end
 
+		it "should be valid with an url which starts by http://" do
+			subject.name = "NomAppli"
+			subject.url = "http://toto"
+      subject.user_id = "12"
+			subject.valid?.should be_true
+		end
+
     it "should not be valid without a name and an url" do
       subject.user_id = "12"
       subject.valid?.should be_false

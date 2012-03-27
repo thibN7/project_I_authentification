@@ -421,9 +421,10 @@ describe "Application" do
 			describe "The current_user doesn't exist" do
 
 				it "should redirect the user to the forbidden page" do
-					get '/users/toto'
-					last_response.should be_ok
-					last_response.body.should match %r{<title>Forbidden</title>.*}
+					get '/applications/new'
+					last_response.should be_redirect
+					follow_redirect!
+					last_request.path.should == '/sessions/new'
 				end
 
 			end
@@ -504,7 +505,7 @@ describe "Application" do
 		end
 
 		# GET APPLICATION/DELETE
-		describe "get /application/delete/:name" do
+		describe "delete /application/:name" do
 
 			describe "The current_user exists" do
 
@@ -516,13 +517,13 @@ describe "Application" do
 				end
 
 				it "should exist a current_user (session)" do
-					get '/applications/delete/appliTest', {}, @session
+					delete '/applications/appliTest', {}, @session
 					last_request.env["rack.session"][:current_user].should == "tmorisse"
 				end
 
 				it "should use find_by_name method from Application class" do
 					Application.should_receive(:find_by_name).with("appliTest")
-					get '/applications/delete/appliTest', {}, @session
+					delete '/applications/appliTest', {}, @session
 				end
 
 				describe "The application exists" do
@@ -534,7 +535,7 @@ describe "Application" do
 
 					it "should use find_by_login method from User class" do
 						User.should_receive(:find_by_login).with("tmorisse")
-						get '/applications/delete/appliTest', {}, @session
+						delete '/applications/appliTest', {}, @session
 					end
 
 					describe "The current_user and the application owner are the same" do
@@ -547,11 +548,11 @@ describe "Application" do
 
 						it "should use delete method from Application class" do
 							Application.should_receive(:delete).with(@appli)
-							get '/applications/delete/appliTest', {}, @session
+							delete '/applications/appliTest', {}, @session
 						end
 
 						it "should redirect to the user page" do
-							get '/applications/delete/appliTest', {}, @session
+							delete '/applications/appliTest', {}, @session
 							last_response.should be_redirect
 							follow_redirect!
 							last_request.path.should == '/users/tmorisse'
@@ -564,7 +565,7 @@ describe "Application" do
 						it "should return the user to the forbidden page" do
 							@appli.stub(:user_id){12}
 							@user.stub(:id){33}
-							get '/applications/delete/appliTest', {}, @session
+							delete '/applications/appliTest', {}, @session
 							last_response.should be_ok
 							last_response.body.should match %r{<title>Forbidden</title>.*}
 						end
@@ -577,7 +578,7 @@ describe "Application" do
 
 					it "should return the user to the not found page" do
 						@appli.stub(:nil?){true}
-						get '/applications/delete/appliTest', {}, @session
+						delete '/applications/appliTest', {}, @session
 						last_response.should be_ok
 						last_response.body.should match %r{<title>Not found</title>.*}
 					end
@@ -589,7 +590,7 @@ describe "Application" do
 			describe "The current_user doesn't exist" do
 
 				it "should return the user to the forbidden page" do
-					get '/applications/delete/appliTest'
+					delete '/applications/appliTest'
 					last_response.should be_ok
 					last_response.body.should match %r{<title>Forbidden</title>.*}
 				end

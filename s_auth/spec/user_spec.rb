@@ -82,15 +82,15 @@ describe User do
 	#-----------------------------
   describe "Find by login method" do
 
-		describe "The login exists" do
+		describe "The login doesn't exist" do
 
 			it "should return false if the authentication fails" do
-				User.find_by_login('toto').should == nil
+				User.find_by_login('toto').should be_nil
 			end
 
 		end
 
-		describe "The login doesn't exist" do
+		describe "The login exists" do
 
 			it "should return true if the authentication succeeds" do
 				subject.login = "Thib"
@@ -121,12 +121,12 @@ describe User do
 		it "should encrypt the password with sha1" do
 		  Digest::SHA1.should_receive(:hexdigest).with("foo").and_return("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
 		  subject.password="foo"
-			subject.password.should == "\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\""
+			subject.password.should == "0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"
   	end
 
 		it "should store she sha1 digest" do
 		  subject.password="foo"
-		  subject.password.should == "\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\""
+		  subject.password.should == "0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"
 		end
 
 	end
@@ -136,13 +136,12 @@ describe User do
 	#----------------------
 	describe "User Authentication" do
 
-		#TODO : Stub à virer car on travaille sur la BDD !
-
 		before (:each) do
 			subject.login = "Thib"
+			subject.password = "foo"
 			subject.save
 			subject.stub(:login).and_return("foo")
-			subject.stub(:password).and_return("\"0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33\"")
+			subject.stub(:password).and_return("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
 		end
 
 		after(:each) do

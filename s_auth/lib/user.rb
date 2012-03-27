@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
 
 	# Encrypt password
 	def self.encrypt_password(password)
-    Digest::SHA1.hexdigest(password).inspect
+    Digest::SHA1.hexdigest(password).inspect[1..40]
 	end
 
 

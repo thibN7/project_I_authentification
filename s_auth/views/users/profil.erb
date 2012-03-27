@@ -53,7 +53,13 @@
 	
 			<ul>
 				<% @applications.each do |appli| %>
-        	<li><%=appli.name%> : <%=appli.url%> - <a href="/applications/delete/<%=appli.name%>" method="delete">Delete</a> </li>
+        	<li> 
+						<form action="/applications/<%=appli.name%>" method="post"> 
+						<%=appli.name%> : <%=appli.url%> -
+						<input name="commit" type="submit" value="Delete <%=appli.name%>" />
+						<input name="_method" type="hidden" value="delete" />
+						</form>
+					</li>
         <% end %>
 			</ul>
 
@@ -90,6 +96,9 @@
 	<a href="/sessions/disconnect"> Disconnect </a>
 	</p>
 
+	<p>
+	<a href="/"> Go to index page </a>
+	</p>
 
 </body>
 </html>
