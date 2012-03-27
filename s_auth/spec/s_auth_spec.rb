@@ -30,9 +30,9 @@ describe "Application" do
 			end
 
 		end
-	
-	end	
-	
+
+	end
+
 
 	#-----------------------
 	# USER REGISTRATION
@@ -48,10 +48,10 @@ describe "Application" do
 				last_request.path.should == '/users/new'
 			end
 
-			it "should return a form to post registration info" do
-		  	get '/users/new'
-		    last_response.should be_ok
-		    last_response.body.should match %r{<form.*action="/users".*method="post".*}
+			it "should return a form to post user registration info" do
+				get '/users/new'
+				last_response.should be_ok
+				last_response.body.should match %r{<form.*action="/users".*method="post".*}
 			end
 
 		end
@@ -63,10 +63,10 @@ describe "Application" do
 				@params = {'login' => 'tmorisse','password' => 'passwordThib'}
 				@user = double(User)
 				User.stub(:create){@user}
-				User.should_receive(:create).with(@params).and_return(@user)
 			end
 
 			it "should use create method" do
+				User.should_receive(:create).with(@params)
 				post '/users', @params
 			end
 
@@ -75,12 +75,12 @@ describe "Application" do
 				before(:each) do
 					@user.stub(:valid?){true}
 					@user.stub(:login){"tmorisse"}
-					post '/users', @params
 				end
 
 				it "should redirect to sessions/new" do
+					post '/users', @params
 					last_response.should be_redirect
-       		follow_redirect!
+					follow_redirect!
 					last_request.path.should == '/sessions/new'
 				end
 
@@ -94,10 +94,10 @@ describe "Application" do
 					@messages = double("Messages")
 					@errors.stub(:messages).and_return(@messages)
 					@messages.stub(:each)
+					@user.stub(:valid?){false}
 				end
 
-				it "should rerender the form" do
-					@user.stub(:valid?){false}
+				it "should rerender the registration form" do
 					post '/users', @params
 					last_response.should be_ok
 					last_response.body.should match %r{<form.*action="/users".*method="post".*}
@@ -113,7 +113,7 @@ describe "Application" do
 	#--------------------------------------------------------------------
 
 	#------------------------
-	# USER AUTHENTICATION 
+	# USER AUTHENTICATION
 	#------------------------
 	describe "User authentication" do
 
@@ -127,9 +127,9 @@ describe "Application" do
 			end
 
 			it "should return a form to post authentication info" do
-		  	get '/sessions/new'
-		    last_response.should be_ok
-		    last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
+				get '/sessions/new'
+				last_response.should be_ok
+				last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
 			end
 
 		end
@@ -139,17 +139,24 @@ describe "Application" do
 
 			before(:each) do
 				@params = {'login' => 'tmorisse','password' => 'passwordThib'}
+				@user = double(User)
+				User.stub(:find_by_login){@user}
+			end
+
+			it "should use the find_by_login method" do
 				User.should_receive(:find_by_login).with('tmorisse')
+				post '/sessions', @params
 			end
 
 			# Authentication ok
 			describe "Authentication ok" do
 
 				before(:each) do
-					User.should_receive(:exists?).with('tmorisse', 'passwordThib').and_return(true)
+					User.stub(:exists?){true}
 				end
-				
+
 				it "should use the exists? method" do
+					User.should_receive(:exists?).with('tmorisse', 'passwordThib')
 					post '/sessions', @params
 				end
 
@@ -158,11 +165,11 @@ describe "Application" do
 					last_request.env["rack.session"][:current_user].should == "tmorisse"
 				end
 
-				it "should redirect to the index page" do
+				it "should redirect the user to the index page" do
 					post '/sessions', @params
 					last_response.should be_redirect
-        	follow_redirect!
-        	last_request.path.should == '/'
+					follow_redirect!
+					last_request.path.should == '/'
 				end
 
 			end
@@ -171,31 +178,34 @@ describe "Application" do
 			describe "Authentication not ok" do
 
 				before(:each) do
-					@user = double(User)
-					User.should_receive(:exists?).with('tmorisse', 'passwordThib').and_return(false)
+					User.stub(:exists?){false}
+				end
+
+				it "should use the exists? method" do
+					User.should_receive(:exists?).with('tmorisse', 'passwordThib')
+					post '/sessions', @params
 				end
 
 				it "should rerender the form if the user is unknown" do
 					@user.stub(:nil?).and_return(true)
 					post '/sessions', @params
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
+					last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
 				end
 
 				it "should rerender the form if the password is wrong" do
 					@user.stub(:nil?).and_return(false)
 					post '/sessions', @params
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
+					last_response.body.should match %r{<form.*action="/sessions".*method="post".*}
 				end
 
-			end		
+			end
 
+		end
 
-		end		
-		
 	end
-	# END USER AUTHENTICATION 
+	# END USER AUTHENTICATION
 
 	#----------------------------------------------------------------
 
@@ -203,7 +213,7 @@ describe "Application" do
 	# USER DISCONNECTION
 	#-------------------------
 	describe "User disconnection" do
-		
+
 		before(:each) do
 			@session = { "rack.session" => { :current_user => "tmorisse" } }
 			get '/sessions/disconnect', {}, @session
@@ -238,36 +248,54 @@ describe "Application" do
 			it "should get /users/tmorisse" do
 				get '/users/tmorisse'
 				last_response.should be_ok
-        last_request.path.should == '/users/tmorisse'
+				last_request.path.should == '/users/tmorisse'
 			end
-			
+
 			describe "The login and the current_user are the same" do
 
 				before(:each) do
 					@user = double(User)
+					@appli = double(Application)
+					@util = double(Utilization)
+					User.stub(:all)
 					User.stub(:find_by_login){@user}
-					@appli = double(Application)	
+					@user.stub(:id){12}					
 					Application.stub(:where){@appli}
-					@user.stub(:id){12}
-					# Add stub for user page profile
-					@appli.stub(:empty?)
+					@appli.stub(:empty?){true}
 					@appli.stub(:each)
+					Utilization.stub(:where){@util}
+					@util.stub(:empty?){true}
 				end
-	
-				it "should use find_by_login method" do
-					User.should_receive(:find_by_login)
+
+				describe "The current_user is the admin" do
+
+					it "should use the 'all' method from User class" do
+						@session = { "rack.session" => { :current_user => "admin" } }
+						User.should_receive(:all)
+						get '/users/admin', {}, @session
+					end
+
+				end
+
+				it "should use find_by_login method from User class" do
+					User.should_receive(:find_by_login).with('tmorisse')
 					get '/users/tmorisse', {}, @session
 				end
-			
-				it "should use 'where' method" do
+
+				it "should use where method from Application class" do
 					Application.should_receive(:where).with(:user_id => 12)
 					get '/users/tmorisse', {}, @session
-				end	
+				end
+
+				it "should use where method from Application class" do
+					Utilization.should_receive(:where).with(:user_id => 12)
+					get '/users/tmorisse', {}, @session
+				end
 
 				it "should render the user page" do
 					get '/users/tmorisse', {}, @session
 					last_response.body.should match %r{<title>User Profile</title>.*}
-				end				
+				end
 
 			end
 
@@ -276,7 +304,7 @@ describe "Application" do
 				it "should return the user to the forbidden page" do
 					get '/users/toto', {}, @session
 					last_response.should be_ok
-				  last_response.body.should match %r{<title>Forbidden</title>.*}
+					last_response.body.should match %r{<title>Forbidden</title>.*}
 				end
 
 			end
@@ -286,7 +314,7 @@ describe "Application" do
 	end
 	# END USER PAGES
 
-	
+
 	#-------------------------
 	# USER SUPPRESSION
 	#-------------------------
@@ -298,6 +326,7 @@ describe "Application" do
 
 				before(:each) do
 					@user = double(User)
+					User.stub(:find_by_login)
 					@session = { "rack.session" => { :current_user => "admin" } }
 				end
 
@@ -306,7 +335,7 @@ describe "Application" do
 					last_request.env["rack.session"][:current_user].should == "admin"
 				end
 
-				it "should use find_by_login method" do
+				it "should use find_by_login method from User class" do
 					User.should_receive(:find_by_login).with('tmorisse')
 					delete '/users/tmorisse', {}, @session
 				end
@@ -333,25 +362,25 @@ describe "Application" do
 				end
 
 				describe "The user to delete doesn't exist" do
-	
+
 					it "should return the admin to the not_found page" do
 						User.stub(:find_by_login){nil}
 						delete '/users/tmorisse', {}, @session
 						last_response.should be_ok
-					  last_response.body.should match %r{<title>Not found</title>.*}
+						last_response.body.should match %r{<title>Not found</title>.*}
 					end
 
 				end
-			
+
 			end
-			
+
 			describe "The current_user is not the admin" do
 
 				it "should return the current_user to the forbidden page" do
 					@session = { "rack.session" => { :current_user => "tmorisse" } }
 					delete '/users/tmorisse', {}, @session
 					last_response.should be_ok
-				  last_response.body.should match %r{<title>Forbidden</title>.*}
+					last_response.body.should match %r{<title>Forbidden</title>.*}
 				end
 
 			end
@@ -362,13 +391,13 @@ describe "Application" do
 
 
 	#-------------------------
-	# APPLICATION
+	# APPLICATION REGISTRATION
 	#-------------------------
-	describe "Application" do
+	describe "Application Registration" do
 
 		# GET /APPLICATIONS/NEW
 		describe "get /applications/new" do
-			
+
 			describe "The current_user exists" do
 
 				before(:each) do
@@ -383,8 +412,8 @@ describe "Application" do
 
 				it "should return a form to post applications info" do
 					get '/applications/new', {}, @session
-				  last_response.should be_ok
-				  last_response.body.should match %r{<form.*action="/applications".*method="post".*}
+					last_response.should be_ok
+					last_response.body.should match %r{<form.*action="/applications".*method="post".*}
 				end
 
 			end
@@ -394,7 +423,7 @@ describe "Application" do
 				it "should redirect the user to the forbidden page" do
 					get '/users/toto'
 					last_response.should be_ok
-				  last_response.body.should match %r{<title>Forbidden</title>.*}
+					last_response.body.should match %r{<title>Forbidden</title>.*}
 				end
 
 			end
@@ -419,26 +448,30 @@ describe "Application" do
 				post '/applications', @paramsAppli, @session
 				last_request.env["rack.session"][:current_user].should == "tmorisse"
 			end
-			
-			it "should use find_by_login" do
-				User.should_receive(:find_by_login).with('tmorisse').and_return(@user)
+
+			it "should use find_by_login method from User class" do
+				User.should_receive(:find_by_login).with('tmorisse')
 				post '/applications', @paramsAppli, @session
 			end
 
-			it "should use create" do
+			it "should use create method from Application class" do
 				Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
 				post '/applications', @paramsAppli, @session
 			end
-		
+
 			describe "Registration ok" do
+		
+				it "should use valid? method from @appli object" do
+					@appli.should_receive(:valid?)
+					post '/applications', @paramsAppli, @session
+				end
 
 				it "should redirect to the user page /users/:login" do
-					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
-					@appli.should_receive(:valid?).and_return(true)
+					@appli.stub(:valid?){true}
 					post '/applications', @paramsAppli, @session
 					last_response.should be_redirect
-          follow_redirect!
-          last_request.path.should == '/users/tmorisse'
+					follow_redirect!
+					last_request.path.should == '/users/tmorisse'
 				end
 
 			end
@@ -454,12 +487,16 @@ describe "Application" do
 					@messages.stub(:each)
 				end
 
+				it "should use valid? method from @appli object" do
+					@appli.should_receive(:valid?)
+					post '/applications', @paramsAppli, @session
+				end
+
 				it "should rerender the form" do
-					Application.should_receive(:create).with("name"=>"nomAppli", "url"=>"http://urlAppli.fr", "user_id"=>12)
-					@appli.should_receive(:valid?).and_return(false)
+					@appli.stub(:valid?){false}
 					post '/applications', @paramsAppli, @session
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/applications".*method="post".*}
+					last_response.body.should match %r{<form.*action="/applications".*method="post".*}
 				end
 
 			end
@@ -478,12 +515,12 @@ describe "Application" do
 					Application.stub(:find_by_name){@appli}
 				end
 
-				it "should exist a current_user" do
+				it "should exist a current_user (session)" do
 					get '/applications/delete/appliTest', {}, @session
 					last_request.env["rack.session"][:current_user].should == "tmorisse"
 				end
 
-				it "should use find_by_name to find an application" do
+				it "should use find_by_name method from Application class" do
 					Application.should_receive(:find_by_name).with("appliTest")
 					get '/applications/delete/appliTest', {}, @session
 				end
@@ -495,8 +532,7 @@ describe "Application" do
 						User.stub(:find_by_login){@user}
 					end
 
-					it "should use find_by_login" do
-						Application.should_receive(:find_by_name).with("appliTest")
+					it "should use find_by_login method from User class" do
 						User.should_receive(:find_by_login).with("tmorisse")
 						get '/applications/delete/appliTest', {}, @session
 					end
@@ -509,19 +545,16 @@ describe "Application" do
 							Application.stub(:delete)
 						end
 
-						it "should use delete" do
+						it "should use delete method from Application class" do
 							Application.should_receive(:delete).with(@appli)
 							get '/applications/delete/appliTest', {}, @session
 						end
 
 						it "should redirect to the user page" do
-							Application.should_receive(:delete).with(@appli)
-							Application.should_receive(:find_by_name).with("appliTest")
-							User.should_receive(:find_by_login).with("tmorisse")
 							get '/applications/delete/appliTest', {}, @session
 							last_response.should be_redirect
-		          follow_redirect!
-	          	last_request.path.should == '/users/tmorisse'
+							follow_redirect!
+							last_request.path.should == '/users/tmorisse'
 						end
 
 					end
@@ -541,7 +574,7 @@ describe "Application" do
 				end
 
 				describe "The application doesn't exist" do
-					
+
 					it "should return the user to the not found page" do
 						@appli.stub(:nil?){true}
 						get '/applications/delete/appliTest', {}, @session
@@ -558,7 +591,7 @@ describe "Application" do
 				it "should return the user to the forbidden page" do
 					get '/applications/delete/appliTest'
 					last_response.should be_ok
-				  last_response.body.should match %r{<title>Forbidden</title>.*}
+					last_response.body.should match %r{<title>Forbidden</title>.*}
 				end
 
 			end
@@ -590,18 +623,18 @@ describe "Application" do
 					Application.stub(:exists?){true}
 				end
 
-				it "should exist an application named appli_1" do
+				it "should use exists? method from Application class" do
 					Application.should_receive(:exists?).with("appli_1")
 					get '/sessions/new/appli_1?origine=/protected'
 				end
 
 				describe "The current_user (session) exists" do
-				
+
 					before(:each) do
 						@session = { "rack.session" => { :current_user => "tmorisse" } }
 					end
 
-					it "should exist a current_user" do
+					it "should exist a current_user (session)" do
 						get '/sessions/new/appli_1?origine=/protected', {}, @session
 						last_request.env["rack.session"][:current_user].should == "tmorisse"
 					end
@@ -614,7 +647,7 @@ describe "Application" do
 								Utilization.stub(:exists?){false}
 								Utilization.stub(:add)
 							end
-						
+
 							it "should use the exists? method" do
 								Utilization.should_receive(:exists?).with("tmorisse", "appli_1")
 								get '/sessions/new/appli_1?origine=/protected', {}, @session
@@ -635,7 +668,7 @@ describe "Application" do
 						Utilization.stub(:exists?){true}
 					end
 
-					it "should use the redirect method" do
+					it "should use the redirect method from Application class" do
 						Application.should_receive(:redirect).with('appli_1', '/protected', 'tmorisse')
 						get '/sessions/new/appli_1?origine=/protected', {}, @session
 					end
@@ -643,19 +676,19 @@ describe "Application" do
 					it "should redirect the user to the client application page" do
 						get '/sessions/new/appli_1?origine=/protected', {}, @session
 						last_response.should be_redirect
-            follow_redirect!
-            last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
+						follow_redirect!
+						last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
 					end
 
 				end
 
 				describe "The current_user (session) doesn't exist" do
-					
+
 					before(:each) do
 						Application.stub(:back_url){'http://localhost:2000/protected'}
 					end
 
-					it "should use back_url method" do
+					it "should use back_url method from Application class" do
 						Application.should_receive(:back_url).with('appli_1', '/protected')
 						get '/sessions/new/appli_1?origine=/protected'
 					end
@@ -663,13 +696,13 @@ describe "Application" do
 					it " should render the form to post s_auth authentication info" do
 						get '/sessions/new/appli_1?origine=/protected'
 						last_response.should be_ok
-				    last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+						last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
 					end
 
 				end
 
 			end
-			
+
 			describe "The application appli_1 doesn't exist" do
 
 				it "should return the user to the not found page" do
@@ -677,8 +710,8 @@ describe "Application" do
 					get '/sessions/new/appli_1?origine=/protected'
 					last_response.should be_ok
 					last_response.body.should match %r{<title>Not found</title>.*}
-				end		
-			
+				end
+
 			end
 
 		end
@@ -692,12 +725,12 @@ describe "Application" do
 					User.stub(:exists?){true}
 				end
 
-				it "should use the exists? method and return true" do
+				it "should use the exists? method from User class" do
 					User.should_receive(:exists?).with('tmorisse', 'passwordThib')
 					post 'sessions/appli_1', @params
 				end
 
-				it "should create a session" do
+				it "should create a current_user (session)" do
 					post 'sessions/appli_1', @params
 					last_request.env["rack.session"][:current_user].should == 'tmorisse'
 				end
@@ -710,8 +743,8 @@ describe "Application" do
 							Utilization.stub(:exists?){false}
 							Utilization.stub(:add)
 						end
-						
-						it "should use the exists? method" do
+
+						it "should use the exists? method from Utilization class" do
 							Utilization.should_receive(:exists?).with("tmorisse", "appli_1")
 							post 'sessions/appli_1', @params
 						end
@@ -729,8 +762,8 @@ describe "Application" do
 					Utilization.stub(:exists?){true}
 					post 'sessions/appli_1', @params
 					last_response.should be_redirect
-				  follow_redirect!
-				  last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
+					follow_redirect!
+					last_request.url.should == 'http://localhost:2000/protected?login=tmorisse&secret=iamsauth'
 				end
 
 			end
@@ -753,14 +786,14 @@ describe "Application" do
 					@user.stub(:nil?).and_return(true)
 					post 'sessions/appli_1', @params
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+					last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
 				end
 
 				it "should rerender the form if the password is wrong" do
 					@user.stub(:nil?).and_return(false)
 					post 'sessions/appli_1', @params
 					last_response.should be_ok
-		    	last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
+					last_response.body.should match %r{<form.*action="/sessions/appli_1".*method="post".*}
 				end
 
 			end
@@ -768,9 +801,5 @@ describe "Application" do
 		end
 
 	end
-	
-
-
-
 
 end
