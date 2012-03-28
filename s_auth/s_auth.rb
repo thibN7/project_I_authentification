@@ -5,7 +5,7 @@ require 'lib/user.rb'
 require 'database.rb'
 require 'logger'
 
-use Rack::Session::Cookie, :key => 'rack.session.s_auth', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
+#use Rack::Session::Cookie, :key => 'rack.session.s_auth', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
 
 set :logger , Logger.new('log/connections.txt', 'weekly')
 
@@ -31,8 +31,6 @@ end
 before '/applications/new' do
 	redirect '/sessions/new' if !current_user
 end
-
-
 
 
 #-----------------------
@@ -191,7 +189,6 @@ delete '/applications/:name' do
 		@error_forbidden = :current_user_nil
 		erb :"errors/forbidden"
 	end
-
 end
 
 

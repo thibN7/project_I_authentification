@@ -1,6 +1,0 @@
-I, [2012-03-27T23:18:41.260651 #4894]  INFO -- : s_auth connection failed for the login toto
-I, [2012-03-27T23:18:48.406719 #4894]  INFO -- : s_auth connection succeeded for the login toto
-I, [2012-03-27T23:19:18.703869 #4935]  INFO -- : s_auth connection succeeded for the login toto
-I, [2012-03-27T23:38:52.624137 #4935]  INFO -- : s_auth disconnection succeeded for the logintoto
-I, [2012-03-27T23:38:58.122166 #4935]  INFO -- : s_auth connection failed for the login admin
-I, [2012-03-27T23:39:06.881438 #4935]  INFO -- : s_auth connection succeeded for the login admin

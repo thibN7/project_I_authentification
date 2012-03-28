@@ -41,7 +41,15 @@ Afin de lancer l'exécution des tests, veuillez suivre les étapes suivantes :
 		--> Soit en tapant : rspec appli_2_spec.rb
 
 
-ATTENTION ! Lancer les tests vident toute la base de données, ce qui est nécessaire pour la suite de l'utilisation du service d'authentification (Etant donné qu'il n'existe pas de base de données de test...)
+ATTENTION ! 
+
+Lancer les tests vident toute la base de données, ce qui est nécessaire pour la suite de l'utilisation du service d'authentification (Etant donné qu'il n'existe pas de base de données de test...)
+
+Pour effectuer les tests, ne pas oublier de commenter la ligne "use Rack::Session::Cookie" qui se situe en haut des 3 fichiers s_auth.rb, appli_1.rb, et appli_2.rb.
+
+Par contre, pour l'utilisation du service d'authentification, décommenter ces lignes afin de créer correctement les cookies et session.
+
+ATTENTION !
 
 
 ###########################################################################
@@ -121,9 +129,6 @@ Vous aurez alors accès à votre espace privé :
 	--> Il vous sera également possible de supprimer une application cliente que vous auriez au préalable créé.
 
 
-
-
-
 --------------------------------------------
 4 - Accès à l'application cliente 1
 --------------------------------------------
@@ -158,18 +163,21 @@ Si vous essayer d'accéder à des pages inexistantes, vous serez automatiquement
 
 
 
-
 --------------------------------------------
 PETITES PRECISIONS
 --------------------------------------------
 
 Je souhaiterais apporter quelques petites précisions quant à l'utilisation de mon service d'authentification.
 
-Nous pouvons être connecté à une application cliente avec un certain compte, mais être connecté au service d'authentification avec un autre compte.
+- Nous pouvons être connecté à une application cliente avec un certain compte, mais être connecté au service d'authentification avec un autre compte.
 En effet, lorsque nous souhaitons accéder à la zone protégée de l'appli cliente et que nous ne sommes pas encore connecté, l'appli cliente va checker le compte auquel nous sommes connecté sur le service d'authentification, afin de nous connecter sur l'appli cliente. Une fois ceci fait, nous sommes alors connecté à l'appli cliente grâce au compte X du s_auth. Tant que nous ne nous déconnectons pas de l'appli cliente, nous serons toujours connecté à l'aide de ce compte X.
 Donc si on souhaite se connecter sur le s_auth avec un compte Y, cela est totalement possible, mais ne changera pas le compte utilisé par l'appli cliente, tant qu'on ne se déconnecte pas de cette-ci.
 
+- Une journalisation hebdomadaire des connexions est automatisée grâce à la classe Logger. Le fichier listant les informations de connections et de tentatives de connections se trouve dans le dossier log, lui-même présent dans le dossier s_auth. Le nom du fichier est le suivant : connections.txt.
+	--> Le chemin complet est alors : se positionner à la racine du projet, puis taper : cd s_auth/log
+	--> Vous aurez alors accès au dit fichier
 
+- Un fichier de log est également présent dans le dossier spec : il permet seulement d'effectuer les tests.
 
 
 

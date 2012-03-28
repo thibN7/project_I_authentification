@@ -2,7 +2,7 @@ $: << File.dirname(__FILE__)
 
 require 'sinatra'
 
-set :port, 2000
+set :port, 3000
 
 #use Rack::Session::Cookie, :key => 'rack.session.s_auth_appli_1', :expire_after => 60*60*24*2, :secret => 'secret_s_auth'
 
@@ -41,7 +41,7 @@ get '/protected' do
 		@login = current_user_appli
 		erb :"protected"
 	else
-		redirect 'http://localhost:4567/sessions/new/appli_1?origine=/protected'
+		redirect 'http://localhost:4567/sessions/new/appli_2?origine=/protected'
 	end
 end
 
