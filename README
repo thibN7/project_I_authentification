@@ -5,6 +5,24 @@
 #
 ###########################################################################
 
+Le projet comporte 3 dossiers :
+	--> s_auth : dossier du service d'authentification
+	--> appli_1 : dossier de l'application cliente 1
+	--> appli_2 : dossier de l'application cliente 2
+
+###########################################################################
+# Creation de la base de données
+###########################################################################
+
+Avant de commencer quoi que ce soit, il faudra créer la base de données.
+Pour ce faire, ouvrir un terminal et aller à la racine du projet, soit dans le dossier "projet_I_authentification".
+Ensuite, taper la commande suivante pour aller dans le dossier s_auth : cd s_auth/
+Puis taper la commande suivant pour créer la BDD : ruby migration.rb
+
+Le fichier "development.sqlite3" sera créé dans le dossier "db".
+
+Nous pouvons ensuite commencer les tests.
+
 ###########################################################################
 # VERIFICATION ET LANCEMENT DES TESTS
 ###########################################################################
@@ -156,10 +174,12 @@ Inutile de refaire un paragraphe pour l'utilisation de l'application cliente 2, 
 Si l'application cliente n'est pas créé, vous pourrez tout de même accéder à la page publique de l'application, dans notre cas l'adresse "http://localhost:3000", mais bien évidemment pas à la page privée.
 
 --------------------------------------------
-5 - Accès à des pages inexistantes
+5 - Accès à des pages inexistantes ou interdites
 --------------------------------------------
 
 Si vous essayer d'accéder à des pages inexistantes, vous serez automatiquement redirigés vers une page "Not found".
+
+Il en est de même si vous souhaitez accéder à des pages interdites : une page "Forbidden" s'affichera.
 
 
 
@@ -172,12 +192,16 @@ Je souhaiterais apporter quelques petites précisions quant à l'utilisation de 
 - Nous pouvons être connecté à une application cliente avec un certain compte, mais être connecté au service d'authentification avec un autre compte.
 En effet, lorsque nous souhaitons accéder à la zone protégée de l'appli cliente et que nous ne sommes pas encore connecté, l'appli cliente va checker le compte auquel nous sommes connecté sur le service d'authentification, afin de nous connecter sur l'appli cliente. Une fois ceci fait, nous sommes alors connecté à l'appli cliente grâce au compte X du s_auth. Tant que nous ne nous déconnectons pas de l'appli cliente, nous serons toujours connecté à l'aide de ce compte X.
 Donc si on souhaite se connecter sur le s_auth avec un compte Y, cela est totalement possible, mais ne changera pas le compte utilisé par l'appli cliente, tant qu'on ne se déconnecte pas de cette-ci.
+De ce fait, nous pouvons être connecté sur le service d'authentification avec un compte X, sur l'application cliente 1 avec un compte Y, et sur l'appli 2 avec un compte Z.
+
 
 - Une journalisation hebdomadaire des connexions est automatisée grâce à la classe Logger. Le fichier listant les informations de connections et de tentatives de connections se trouve dans le dossier log, lui-même présent dans le dossier s_auth. Le nom du fichier est le suivant : connections.txt.
 	--> Le chemin complet est alors : se positionner à la racine du projet, puis taper : cd s_auth/log
 	--> Vous aurez alors accès au dit fichier
 
 - Un fichier de log est également présent dans le dossier spec : il permet seulement d'effectuer les tests.
+
+- Il peut être nécessaire de supprimer manuellement les cookies générés dans le navigateur si jamais vous voulez rejouer les tests.
 
 
 
